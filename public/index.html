@@ -337,8 +337,17 @@
     }
 
     @keyframes pulseGlow {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.2); opacity: 0.8; }
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+      }
     }
 
     .hero-title {
@@ -414,7 +423,7 @@
       background: linear-gradient(145deg, #101626, #090d18);
       border-radius: 46px;
       border: 2px solid rgba(0, 240, 255, 0.45);
-      box-shadow: 
+      box-shadow:
         0 30px 80px rgba(0, 0, 0, 0.8),
         0 0 45px rgba(0, 240, 255, 0.25),
         inset 0 0 24px rgba(0, 240, 255, 0.12);
@@ -508,7 +517,7 @@
       border-radius: 20px;
       padding: 16px;
       text-align: center;
-      box-shadow: 
+      box-shadow:
         0 20px 40px rgba(0, 0, 0, 0.6),
         0 0 35px rgba(0, 240, 255, 0.6);
       transform: translateZ(45px);
@@ -536,10 +545,23 @@
     }
 
     @keyframes scanLaser {
-      0% { top: 0%; opacity: 0; }
-      15% { opacity: 1; }
-      85% { opacity: 1; }
-      100% { top: 100%; opacity: 0; }
+      0% {
+        top: 0%;
+        opacity: 0;
+      }
+
+      15% {
+        opacity: 1;
+      }
+
+      85% {
+        opacity: 1;
+      }
+
+      100% {
+        top: 100%;
+        opacity: 0;
+      }
     }
 
     .phone-verify-code {
@@ -598,8 +620,13 @@
     }
 
     @keyframes floatPill {
-      0% { transform: translateZ(60px) translateY(0); }
-      100% { transform: translateZ(60px) translateY(-12px); }
+      0% {
+        transform: translateZ(60px) translateY(0);
+      }
+
+      100% {
+        transform: translateZ(60px) translateY(-12px);
+      }
     }
 
     /* Container */
@@ -1156,7 +1183,8 @@
 
         <p class="hero-subtitle">
           QRFlux is a consumer-grade offline file transfer app for Android. Beam massive 4K videos, photos, and folders
-          directly between devices over local Wi-Fi or personal hotspot at native hardware speeds — zero internet, zero accounts,
+          directly between devices over local Wi-Fi or personal hotspot at native hardware speeds — zero internet, zero
+          accounts,
           and zero tracking.
         </p>
 
@@ -1206,7 +1234,8 @@
         <div class="phone-3d-box" id="phone3D">
           <!-- Floating Orbit Badges -->
           <div class="orbit-pill orbit-pill-1">
-            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+            <span
+              style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
             52.4 MB/s Streaming
           </div>
 
@@ -1234,36 +1263,36 @@
               <!-- Generated SVG QR Mockup with High Contrast -->
               <svg viewBox="0 0 100 100" fill="#0b0f19" width="100%" height="100%">
                 <!-- QR Corner Finders -->
-                <rect x="10" y="10" width="26" height="26" fill="#000" rx="4"/>
-                <rect x="14" y="14" width="18" height="18" fill="#fff" rx="2"/>
-                <rect x="18" y="18" width="10" height="10" fill="#000" rx="1"/>
+                <rect x="10" y="10" width="26" height="26" fill="#000" rx="4" />
+                <rect x="14" y="14" width="18" height="18" fill="#fff" rx="2" />
+                <rect x="18" y="18" width="10" height="10" fill="#000" rx="1" />
 
-                <rect x="64" y="10" width="26" height="26" fill="#000" rx="4"/>
-                <rect x="68" y="14" width="18" height="18" fill="#fff" rx="2"/>
-                <rect x="72" y="18" width="10" height="10" fill="#000" rx="1"/>
+                <rect x="64" y="10" width="26" height="26" fill="#000" rx="4" />
+                <rect x="68" y="14" width="18" height="18" fill="#fff" rx="2" />
+                <rect x="72" y="18" width="10" height="10" fill="#000" rx="1" />
 
-                <rect x="10" y="64" width="26" height="26" fill="#000" rx="4"/>
-                <rect x="14" y="68" width="18" height="18" fill="#fff" rx="2"/>
-                <rect x="18" y="72" width="10" height="10" fill="#000" rx="1"/>
+                <rect x="10" y="64" width="26" height="26" fill="#000" rx="4" />
+                <rect x="14" y="68" width="18" height="18" fill="#fff" rx="2" />
+                <rect x="18" y="72" width="10" height="10" fill="#000" rx="1" />
 
                 <!-- QR Data Matrix Dots -->
-                <rect x="42" y="12" width="6" height="6"/>
-                <rect x="52" y="12" width="6" height="6"/>
-                <rect x="46" y="24" width="6" height="6"/>
-                <rect x="42" y="36" width="6" height="6"/>
-                <rect x="52" y="36" width="6" height="6"/>
-                <rect x="14" y="44" width="6" height="6"/>
-                <rect x="26" y="44" width="6" height="6"/>
-                <rect x="34" y="48" width="6" height="6"/>
-                <rect x="66" y="44" width="6" height="6"/>
-                <rect x="78" y="44" width="6" height="6"/>
-                <rect x="42" y="66" width="6" height="6"/>
-                <rect x="52" y="66" width="6" height="6"/>
-                <rect x="46" y="78" width="6" height="6"/>
-                <rect x="66" y="66" width="6" height="6"/>
-                <rect x="78" y="66" width="6" height="6"/>
-                <rect x="66" y="78" width="6" height="6"/>
-                <rect x="78" y="78" width="6" height="6"/>
+                <rect x="42" y="12" width="6" height="6" />
+                <rect x="52" y="12" width="6" height="6" />
+                <rect x="46" y="24" width="6" height="6" />
+                <rect x="42" y="36" width="6" height="6" />
+                <rect x="52" y="36" width="6" height="6" />
+                <rect x="14" y="44" width="6" height="6" />
+                <rect x="26" y="44" width="6" height="6" />
+                <rect x="34" y="48" width="6" height="6" />
+                <rect x="66" y="44" width="6" height="6" />
+                <rect x="78" y="44" width="6" height="6" />
+                <rect x="42" y="66" width="6" height="6" />
+                <rect x="52" y="66" width="6" height="6" />
+                <rect x="46" y="78" width="6" height="6" />
+                <rect x="66" y="66" width="6" height="6" />
+                <rect x="78" y="66" width="6" height="6" />
+                <rect x="66" y="78" width="6" height="6" />
+                <rect x="78" y="78" width="6" height="6" />
               </svg>
             </div>
 
@@ -1288,7 +1317,8 @@
         <div class="section-tag">📱 MOBILE TO MOBILE</div>
         <h2 class="section-title">How It Works in the App</h2>
         <p class="section-desc">
-          No typing IP addresses or configuring FTP ports. Everything is handled behind an instantaneous 3D QR handshake.
+          No typing IP addresses or configuring FTP ports. Everything is handled behind an instantaneous 3D QR
+          handshake.
         </p>
       </div>
 
@@ -1297,7 +1327,8 @@
           <div class="step-num">1</div>
           <div class="step-title">Select Files</div>
           <div class="step-desc">
-            Open QRFlux on your Android phone and tap <strong>Send Files</strong>. Select any number of photos, 4K videos, documents, or apps.
+            Open QRFlux on your Android phone and tap <strong>Send Files</strong>. Select any number of photos, 4K
+            videos, documents, or apps.
           </div>
         </div>
 
@@ -1305,7 +1336,8 @@
           <div class="step-num">2</div>
           <div class="step-title">Show Dynamic QR</div>
           <div class="step-desc">
-            The app binds a local high-performance streaming engine and generates an ephemeral QR code with an instant 6-digit verification code.
+            The app binds a local high-performance streaming engine and generates an ephemeral QR code with an instant
+            6-digit verification code.
           </div>
         </div>
 
@@ -1313,7 +1345,8 @@
           <div class="step-num">3</div>
           <div class="step-title">Scan on Receiver</div>
           <div class="step-desc">
-            On the second phone, open QRFlux and tap <strong>Receive Files</strong>. Point your camera at the QR code to pair in 0.2 seconds.
+            On the second phone, open QRFlux and tap <strong>Receive Files</strong>. Point your camera at the QR code to
+            pair in 0.2 seconds.
           </div>
         </div>
 
@@ -1321,7 +1354,8 @@
           <div class="step-num">4</div>
           <div class="step-title">Stream at 50+ MB/s</div>
           <div class="step-desc">
-            Files stream directly over raw TCP sockets straight into your phone's <code>Downloads</code> directory at full local Wi-Fi speeds!
+            Files stream directly over raw TCP sockets straight into your phone's <code>Downloads</code> directory at
+            full local Wi-Fi speeds!
           </div>
         </div>
       </div>
@@ -1347,7 +1381,8 @@
         </div>
         <h3 class="feature-title">50+ MB/s Gigabyte Transfers</h3>
         <p class="feature-text">
-          Direct local socket streaming bypasses internet speed limits. Transfer 10GB 4K videos or massive archives in seconds.
+          Direct local socket streaming bypasses internet speed limits. Transfer 10GB 4K videos or massive archives in
+          seconds.
         </p>
       </div>
 
@@ -1360,7 +1395,8 @@
         </div>
         <h3 class="feature-title">100% Private & Offline</h3>
         <p class="feature-text">
-          Zero data touches external servers. No user accounts, zero telemetry, and zero tracking. Works completely without cellular data.
+          Zero data touches external servers. No user accounts, zero telemetry, and zero tracking. Works completely
+          without cellular data.
         </p>
       </div>
 
@@ -1375,7 +1411,8 @@
         </div>
         <h3 class="feature-title">Instant QR Handshake</h3>
         <p class="feature-text">
-          Skip typing IP addresses or complex pairing passwords. A single camera scan establishes encrypted peer authorization.
+          Skip typing IP addresses or complex pairing passwords. A single camera scan establishes encrypted peer
+          authorization.
         </p>
       </div>
 
@@ -1387,7 +1424,8 @@
         </div>
         <h3 class="feature-title">In-App Received Explorer</h3>
         <p class="feature-text">
-          View transfer history, preview received media, or open files directly from inside the app with full Android storage access.
+          View transfer history, preview received media, or open files directly from inside the app with full Android
+          storage access.
         </p>
       </div>
 
@@ -1399,7 +1437,8 @@
         </div>
         <h3 class="feature-title">Zero Truncation Guarantee</h3>
         <p class="feature-text">
-          Built with custom frame flushing and atomic verification so multi-gigabyte transfers complete seamlessly without stopping at 99%.
+          Built with custom frame flushing and atomic verification so multi-gigabyte transfers complete seamlessly
+          without stopping at 99%.
         </p>
       </div>
 
@@ -1413,7 +1452,8 @@
         </div>
         <h3 class="feature-title">Wi-Fi & Hotspot Support</h3>
         <p class="feature-text">
-          Works seamlessly on your home Wi-Fi router or outdoors using your phone's Personal Hotspot with zero cellular data consumption.
+          Works seamlessly on your home Wi-Fi router or outdoors using your phone's Personal Hotspot with zero cellular
+          data consumption.
         </p>
       </div>
     </div>
@@ -1423,12 +1463,14 @@
   <section class="section-container" id="pc-transfer">
     <div class="pc-guide-banner tilt-card">
       <div class="section-header" style="margin-bottom: 24px;">
-        <div class="section-tag" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.4);">
+        <div class="section-tag"
+          style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.4);">
           💻 DESKTOP COMPANION GUIDE
         </div>
         <h2 class="section-title">Want to Send Files from Laptop or PC to Phone?</h2>
         <p class="section-desc">
-          QRFlux is mainly built as a mobile app. If you want to beam files from your computer to your phone, install this repo locally and launch the local PC Host!
+          QRFlux is mainly built as a mobile app. If you want to beam files from your computer to your phone, install
+          this repo locally and launch the local PC Host!
         </p>
       </div>
 
@@ -1440,7 +1482,9 @@
         </svg>
         <div>
           <strong>Why run locally instead of using a web browser in the cloud?</strong>
-          Cloud websites cannot stream raw TCP data directly to your phone's private Wi-Fi IP address due to browser security sandbox rules (Private Network Access & Mixed Content). Running the lightweight host server on your machine gives you native, unthrottled 50+ MB/s transfer speeds directly from your computer to your phone.
+          Cloud websites cannot stream raw TCP data directly to your phone's private Wi-Fi IP address due to browser
+          security sandbox rules (Private Network Access & Mixed Content). Running the lightweight host server on your
+          machine gives you native, unthrottled 50+ MB/s transfer speeds directly from your computer to your phone.
         </div>
       </div>
 
@@ -1469,7 +1513,8 @@
           <div class="guide-badge">2</div>
           <div class="guide-content">
             <h4>Ensure Dart SDK is Installed</h4>
-            <p>The PC Host is powered by Dart. If you have Flutter installed, Dart is already available. Check your installation:</p>
+            <p>The PC Host is powered by Dart. If you have Flutter installed, Dart is already available. Check your
+              installation:</p>
             <div class="code-block">
               <code id="cmdDart">dart --version</code>
               <button class="copy-btn" onclick="copyCode('cmdDart', this)">
@@ -1489,12 +1534,13 @@
           <div class="guide-content">
             <h4>Run the PC Host Server</h4>
             <p>Start the local transfer engine. It automatically finds your Wi-Fi IP and launches your browser:</p>
-            
+
             <div class="platform-pills">
               <span class="platform-pill windows">Windows</span>
             </div>
             <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 8px;">
-              Simply double-click <strong style="color: #fff;">run_pc_host.bat</strong> inside the project folder, or run:
+              Simply double-click <strong style="color: #fff;">run_pc_host.bat</strong> inside the project folder, or
+              run:
             </p>
             <div class="code-block" style="margin-bottom: 14px;">
               <code id="cmdWinRun">dart run bin/server.dart</code>
@@ -1522,7 +1568,8 @@
             </div>
 
             <div style="margin-top: 10px; font-size: 12.5px; color: #94a3b8;">
-              💡 <em>Windows Firewall note: If prompted, click "Allow access", or run <code style="color: var(--primary);">fix_firewall.bat</code> as Administrator.</em>
+              💡 <em>Windows Firewall note: If prompted, click "Allow access", or run <code
+                  style="color: var(--primary);">fix_firewall.bat</code> as Administrator.</em>
             </div>
           </div>
         </div>
@@ -1533,8 +1580,10 @@
           <div class="guide-content">
             <h4>Drop Files in the Local Web Interface</h4>
             <p>
-              Your default browser will automatically open <code style="color: var(--primary); font-family: monospace;">http://localhost:8080</code>.
-              Drag & drop any files (movies, photos, zip archives, folders) and click <strong style="color: #fff;">Generate Transfer QR</strong>.
+              Your default browser will automatically open <code
+                style="color: var(--primary); font-family: monospace;">http://localhost:8080</code>.
+              Drag & drop any files (movies, photos, zip archives, folders) and click <strong
+                style="color: #fff;">Generate Transfer QR</strong>.
             </p>
           </div>
         </div>
@@ -1546,7 +1595,8 @@
             <h4>Scan with the QRFlux Android App</h4>
             <p>
               Make sure your phone is connected to the same Wi-Fi network (or connect your PC to your phone's hotspot).
-              Open the QRFlux Android App, tap <strong style="color: #fff;">Receive Files</strong>, and point the camera at your PC screen.
+              Open the QRFlux Android App, tap <strong style="color: #fff;">Receive Files</strong>, and point the camera
+              at your PC screen.
               Your files will stream directly to your phone at <strong style="color: #10b981;">50+ MB/s</strong>!
             </p>
           </div>
@@ -1565,7 +1615,8 @@
           Get QRFlux for Android
         </h2>
         <p style="color: var(--text-muted); font-size: 15.5px; margin-bottom: 18px;">
-          Install the APK directly on any Android 8.0+ smartphone or tablet. No Google Play account required. Sideload and start
+          Install the APK directly on any Android 8.0+ smartphone or tablet. No Google Play account required. Sideload
+          and start
           sharing in seconds.
         </p>
         <div style="display: flex; gap: 16px; font-size: 13px; color: var(--text-faint); flex-wrap: wrap;">
@@ -1597,10 +1648,19 @@
     <p style="margin-bottom: 10px;">
       Direct High-Speed Offline Wi-Fi File Sharing • Transfer Freely
     </p>
+
     <p style="font-size: 12px;">
-      Open Source project hosted on <a href="https://github.com/Ganesh-anandam/qrflux" target="_blank">GitHub</a>.
-      Deployable seamlessly to <a href="https://vercel.com" target="_blank">Vercel</a>.
+      © <span id="current-year"></span> Ganesha S · Open source software ·
+      <a href="https://github.com/Ganesh-anandam/qrflux" target="_blank" rel="noopener noreferrer">
+        GitHub
+      </a>
     </p>
+
+    <script>
+      document.getElementById("current-year").textContent = new Date().getFullYear();
+    </script>
+
+
   </footer>
 
   <!-- 3D Scripts: Three.js WebGL Scene & Card Tilt Physics -->
@@ -1661,7 +1721,7 @@
 
       // 3D Nodes: Sender (Left) and Receiver (Right)
       const nodeGeo = new THREE.IcosahedronGeometry(3.5, 1);
-      
+
       const nodeMatCyan = new THREE.MeshBasicMaterial({
         color: 0x00f0ff,
         wireframe: true,
@@ -1804,19 +1864,19 @@
     // --- 3. 3D Gyroscope / Mouse-Tilt on Cards ---
     (function init3DTiltCards() {
       const cards = document.querySelectorAll('.tilt-card');
-      
+
       cards.forEach(card => {
         card.addEventListener('mousemove', (e) => {
           const rect = card.getBoundingClientRect();
           const x = e.clientX - rect.left;
           const y = e.clientY - rect.top;
-          
+
           const centerX = rect.width / 2;
           const centerY = rect.height / 2;
-          
+
           const rotX = -((y - centerY) / centerY) * 7;
           const rotY = ((x - centerX) / centerX) * 7;
-          
+
           card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-4px)`;
         });
 
