@@ -796,19 +796,46 @@
     <!-- TAB 1: WEB SENDER -->
     <div class="tab-content active" id="senderView">
       <div class="glass-card">
+        <!-- Local PC Host Launcher Banner (For Vercel Cloud Visitors) -->
+        <div id="cloudHostBanner" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(99, 102, 241, 0.15)); border: 1px solid rgba(0, 240, 255, 0.4); border-radius: 18px; padding: 22px 26px; margin-bottom: 28px; box-shadow: 0 10px 30px rgba(0, 240, 255, 0.08);">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <div style="font-family: 'Outfit', sans-serif; font-size: 19px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px;">
+                <span>⚡ Transfer Files from this PC to Android</span>
+                <span style="font-size: 11px; background: rgba(0, 240, 255, 0.2); color: var(--primary); padding: 3px 8px; border-radius: 6px; font-weight: 700;">50+ MB/s OFFLINE</span>
+              </div>
+              <p style="color: var(--text-muted); font-size: 13.5px; margin-top: 6px; max-width: 580px;">
+                QRFlux streams files directly across your local Wi-Fi router or hotspot with <strong>zero cloud upload</strong>. To beam multi-GB files from this computer, open your Local PC Host:
+              </p>
+            </div>
+            <a href="http://localhost:8080" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 13px 26px; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.35);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+              Open Local PC Host (localhost:8080)
+            </a>
+          </div>
+          <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 12px; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <span>💡 <strong>Quick Start:</strong> Double-click <code style="background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 6px; color: var(--primary); font-family: monospace;">run_pc_host.bat</code> in your QRFlux project folder.</span>
+            <span style="color: #34d399; font-weight: 600;">🔒 100% Offline • Zero Cellular Data • Unlimited File Size</span>
+          </div>
+        </div>
+
         <h2 style="font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 8px;">
-          Send Files to Android
+          Direct Wi-Fi Pairing
         </h2>
         <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
-          Drop any file here. When you click <strong>Generate Transfer QR</strong>, point your QRFlux Android scanner at the screen to start direct streaming.
+          Set your laptop's local Wi-Fi IPv4 address below, select files, and click <strong>Generate Transfer QR</strong>.
         </p>
 
         <!-- Network IP Bar -->
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 14px; padding: 12px 18px; flex-wrap: wrap; gap: 12px;">
           <div style="display: flex; align-items: center; gap: 10px;">
             <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px var(--primary);" id="ipDot"></div>
-            <span style="font-size: 13px; font-weight: 600; color: #fff;">Laptop / PC Wi-Fi IP:</span>
-            <span style="font-size: 11px; color: var(--text-muted);" id="ipStatusText">(Direct local Wi-Fi pairing)</span>
+            <span style="font-size: 13px; font-weight: 600; color: #fff;">Sender Wi-Fi IPv4:</span>
+            <span style="font-size: 11px; color: var(--text-muted);" id="ipStatusText">(Local Wi-Fi IP)</span>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
             <input type="text" id="hostIpInput" value="172.16.237.178" style="background: rgba(10, 16, 30, 0.85); border: 1px solid rgba(0, 240, 255, 0.4); color: var(--primary); font-family: monospace; font-size: 14px; font-weight: 700; padding: 6px 14px; border-radius: 8px; width: 160px; text-align: center;" placeholder="192.168.1.X" title="Set this to your laptop's local Wi-Fi IP">
@@ -1174,8 +1201,14 @@
       return 'other';
     }
 
-    // Auto-detect local host IP on page load if running localhost daemon:
+    // Environment check & local daemon detection:
     window.addEventListener('DOMContentLoaded', async () => {
+      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const cloudBanner = document.getElementById('cloudHostBanner');
+      if (cloudBanner && isLocalHost) {
+        cloudBanner.style.display = 'none';
+      }
+
       try {
         const res = await fetch('http://localhost:8080/api/info', { mode: 'cors' });
         if (res.ok) {
@@ -1199,8 +1232,11 @@
       
       const hostInput = document.getElementById('hostIpInput');
       let hostIp = hostInput ? hostInput.value.trim() : '';
-      if (!hostIp || hostIp === 'localhost' || hostIp === '127.0.0.1') {
+      
+      // Ensure we NEVER use cloud domains like vercel.app for FTP host
+      if (!hostIp || hostIp === 'localhost' || hostIp === '127.0.0.1' || hostIp.includes('vercel.app') || hostIp.includes('http')) {
         hostIp = '172.16.237.178';
+        if (hostInput) hostInput.value = hostIp;
       }
       
       const totalBytes = stagedFiles.reduce((acc, f) => acc + f.size, 0);

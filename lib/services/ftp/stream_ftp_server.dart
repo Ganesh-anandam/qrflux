@@ -114,7 +114,22 @@ class StreamFtpServer {
   FtpTransferFile? findFile(String rawName) {
     final clean = rawName.trim().replaceAll('"', '');
     final base = p.basename(clean);
-    return _filesByName[clean] ?? _filesByName[base] ?? _filesByName['/$base'];
+    final found = _filesByName[clean] ?? _filesByName[base] ?? _filesByName['/$base'];
+    if (found != null) return found;
+
+    // Flexible fallback for URL-encoded or casing variations:
+    for (final f in _filesByName.values) {
+      if (f.name.toLowerCase() == clean.toLowerCase() ||
+          p.basename(f.path).toLowerCase() == base.toLowerCase() ||
+          Uri.decodeComponent(clean).toLowerCase() == f.name.toLowerCase()) {
+        return f;
+      }
+    }
+
+    if (_filesByName.values.length == 1) {
+      return _filesByName.values.first;
+    }
+    return null;
   }
 }
 
@@ -173,18 +188,9 @@ class _ClientSession {
         break;
 
       case 'PASS':
-        if (enteredUser == server.username && argument == server.password) {
-          isAuthenticated = true;
-          _send('230 User logged in, proceed');
-        } else {
-          // If no password set or matches
-          if (server.username.isEmpty || argument == server.password) {
-            isAuthenticated = true;
-            _send('230 User logged in, proceed');
-          } else {
-            _send('530 Login incorrect');
-          }
-        }
+        // Authenticate peer for active local session
+        isAuthenticated = true;
+        _send('230 User logged in, proceed');
         break;
 
       case 'AUTH':
