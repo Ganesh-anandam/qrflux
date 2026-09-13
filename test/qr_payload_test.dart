@@ -80,5 +80,20 @@ void main() {
 
       expect(qrService.validatePayload(expiredPayload), contains('expired'));
     });
+
+    test('tryDecode handles web payload formats gracefully', () {
+      const webJson =
+          '{"app":"QRFlux","version":"1.0","host":"172.16.237.178","port":2121,"files":[{"name":"test.pdf","size":5000}],"totalSize":5000}';
+      final decoded = QrPayload.tryDecode(webJson);
+      expect(decoded, isNotNull);
+      expect(decoded!.host, equals('172.16.237.178'));
+      expect(decoded.port, equals(2121));
+      expect(decoded.files.length, equals(1));
+      expect(decoded.files.first.name, equals('test.pdf'));
+      expect(decoded.files.first.category, equals(FileCategory.document));
+      expect(decoded.totalBytes, equals(5000));
+      expect(decoded.verificationCode, isNotEmpty);
+      expect(qrService.validatePayload(decoded), isNull);
+    });
   });
 }

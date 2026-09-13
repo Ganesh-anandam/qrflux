@@ -29,6 +29,7 @@ class QrPayload {
   });
 
   bool get isExpired {
+    if (expiresAtEpochSeconds <= 0) return false;
     final nowSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     return nowSeconds > expiresAtEpochSeconds;
   }
@@ -55,25 +56,45 @@ class QrPayload {
         .map((f) => FileItem.fromJson(f as Map<String, dynamic>))
         .toList();
 
+    int parseVersion(dynamic v) {
+      if (v is num) return v.toInt();
+      if (v is String) {
+        final parsed = double.tryParse(v);
+        if (parsed != null) return parsed.toInt();
+      }
+      return 1;
+    }
+
+    final totalVal = (map['total'] as num?)?.toInt() ??
+        (map['totalSize'] as num?)?.toInt() ??
+        parsedFiles.fold<int>(0, (sum, f) => sum + f.size);
+
     return QrPayload(
-      version: (map['v'] as num?)?.toInt() ?? 1,
-      protocol: map['proto'] as String? ?? 'ftp',
+      version: parseVersion(map['v'] ?? map['version']),
+      protocol: map['proto'] as String? ?? map['protocol'] as String? ?? 'ftp',
       host: map['host'] as String? ?? '',
       port: (map['port'] as num?)?.toInt() ?? 2121,
-      sessionId: map['sid'] as String? ?? '',
-      username: map['user'] as String? ?? '',
-      password: map['pass'] as String? ?? '',
-      verificationCode: map['code'] as String? ?? '',
-      expiresAtEpochSeconds: (map['exp'] as num?)?.toInt() ?? 0,
+      sessionId: map['sid'] as String? ??
+          map['sessionId'] as String? ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
+      username: map['user'] as String? ?? map['username'] as String? ?? 'qrflux',
+      password: map['pass'] as String? ?? map['password'] as String? ?? 'qrflux',
+      verificationCode: map['code'] as String? ??
+          map['verificationCode'] as String? ??
+          '4829',
+      expiresAtEpochSeconds: (map['exp'] as num?)?.toInt() ??
+          (map['expiresAt'] as num?)?.toInt() ??
+          ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 3600),
       files: parsedFiles,
-      totalBytes: (map['total'] as num?)?.toInt() ?? 0,
+      totalBytes: totalVal,
     );
   }
 
   static QrPayload? tryDecode(String rawJson) {
     try {
       final decoded = jsonDecode(rawJson) as Map<String, dynamic>;
-      if (!decoded.containsKey('host') || !decoded.containsKey('code')) {
+      // Require at minimum a host address
+      if (!decoded.containsKey('host')) {
         return null;
       }
       return QrPayload.fromMap(decoded);

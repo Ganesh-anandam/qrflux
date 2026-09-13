@@ -156,8 +156,12 @@ class FileItem {
     path: '',
     size: (json['size'] as num?)?.toInt() ?? 0,
     category: FileCategory.values.firstWhere(
-      (c) => c.name == json['category'],
-      orElse: () => FileCategory.other,
+      (c) => c.name == (json['category'] ?? json['type']),
+      orElse: () => _categoryFromExtension(
+        (json['name'] as String? ?? '').contains('.')
+            ? (json['name'] as String).split('.').last.toLowerCase()
+            : '',
+      ),
     ),
     mimeType: json['mimeType'] as String?,
   );

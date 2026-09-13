@@ -799,9 +799,22 @@
         <h2 style="font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 8px;">
           Send Files to Android
         </h2>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
           Drop any file here. When you click <strong>Generate Transfer QR</strong>, point your QRFlux Android scanner at the screen to start direct streaming.
         </p>
+
+        <!-- Network IP Bar -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 14px; padding: 12px 18px; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px var(--primary);" id="ipDot"></div>
+            <span style="font-size: 13px; font-weight: 600; color: #fff;">Laptop / PC Wi-Fi IP:</span>
+            <span style="font-size: 11px; color: var(--text-muted);" id="ipStatusText">(Direct local Wi-Fi pairing)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="text" id="hostIpInput" value="172.16.237.178" style="background: rgba(10, 16, 30, 0.85); border: 1px solid rgba(0, 240, 255, 0.4); color: var(--primary); font-family: monospace; font-size: 14px; font-weight: 700; padding: 6px 14px; border-radius: 8px; width: 160px; text-align: center;" placeholder="192.168.1.X" title="Set this to your laptop's local Wi-Fi IP">
+            <span style="font-size: 11px; color: var(--text-muted);">Port 2121</span>
+          </div>
+        </div>
 
         <!-- Dropzone -->
         <div class="drop-zone" id="dropZone">
@@ -847,9 +860,28 @@
             Ready for Android Pairing
           </h3>
           <p class="qr-instructions">
-            Scan this code inside the <strong>QRFlux Android App</strong>. Ensure your phone and PC are connected to the same Wi-Fi network or mobile hotspot.
+            Scan this code inside the <strong>QRFlux Android App</strong> (Tap <em>Receive Files</em>).
           </p>
+
+          <div style="margin: 8px 0 14px;">
+            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Verification Code</div>
+            <div style="font-family: 'Outfit', sans-serif; font-size: 34px; font-weight: 800; color: var(--primary); letter-spacing: 4px;" id="qrVerifyCode">482 913</div>
+          </div>
+
           <div class="qr-box" id="qrCodeTarget"></div>
+
+          <!-- Offline Engine Helper -->
+          <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px 18px; margin: 16px auto; font-size: 13px; color: var(--text-muted); text-align: left; max-width: 500px;">
+            <div style="font-weight: 700; color: #fff; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+              <span>⚡ High-Speed Wi-Fi Streaming Engine</span>
+            </div>
+            <div>To stream these files directly over your local Wi-Fi (20–50 MB/s), keep the QRFlux PC host running:</div>
+            <div style="background: #000; border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-family: monospace; color: var(--primary); font-size: 13px; display: flex; justify-content: space-between; align-items: center;">
+              <code>dart run bin/server.dart</code>
+              <button onclick="navigator.clipboard.writeText('dart run bin/server.dart'); alert('Command copied to clipboard!');" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">Copy</button>
+            </div>
+          </div>
+
           <div>
             <button class="btn btn-secondary" onclick="closeQrModal()">
               Done / Close
@@ -1132,31 +1164,84 @@
       clearBtn.style.display = count > 0 ? 'inline-flex' : 'none';
     }
 
-    function generateQrModal() {
+    function detectCategory(name) {
+      const ext = name.includes('.') ? name.split('.').pop().toLowerCase() : '';
+      if (['jpg','jpeg','png','gif','webp','bmp','svg','heic'].includes(ext)) return 'image';
+      if (['mp4','mkv','mov','avi','wmv','flv','webm','3gp'].includes(ext)) return 'video';
+      if (['mp3','wav','aac','flac','m4a','ogg','opus'].includes(ext)) return 'audio';
+      if (['pdf','doc','docx','txt','rtf','xls','xlsx','ppt','pptx','csv'].includes(ext)) return 'document';
+      if (['zip','rar','7z','tar','gz','bz2'].includes(ext)) return 'archive';
+      return 'other';
+    }
+
+    // Auto-detect local host IP on page load if running localhost daemon:
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await fetch('http://localhost:8080/api/info', { mode: 'cors' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.ip) {
+            const input = document.getElementById('hostIpInput');
+            if (input) input.value = data.ip;
+            const dot = document.getElementById('ipDot');
+            if (dot) dot.style.background = '#10b981';
+            const status = document.getElementById('ipStatusText');
+            if (status) status.textContent = '(🟢 PC Daemon Active: ' + data.ip + ')';
+          }
+        }
+      } catch (e) {}
+    });
+
+    async function generateQrModal() {
       if (stagedFiles.length === 0) return;
 
       qrCodeTarget.innerHTML = '';
       
-      // Construct QR payload according to QRFlux transfer specs:
-      const hostIp = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-        ? '172.16.237.178' 
-        : window.location.hostname;
-      const totalBytes = stagedFiles.reduce((acc, f) => acc + f.size, 0);
+      const hostInput = document.getElementById('hostIpInput');
+      let hostIp = hostInput ? hostInput.value.trim() : '';
+      if (!hostIp || hostIp === 'localhost' || hostIp === '127.0.0.1') {
+        hostIp = '172.16.237.178';
+      }
       
-      const payload = JSON.stringify({
-        app: "QRFlux",
-        version: "1.0",
+      const totalBytes = stagedFiles.reduce((acc, f) => acc + f.size, 0);
+      const codePart1 = Math.floor(100 + Math.random() * 900);
+      const codePart2 = Math.floor(100 + Math.random() * 900);
+      const verificationCode = `${codePart1} ${codePart2}`;
+      
+      const verifyDisplay = document.getElementById('qrVerifyCode');
+      if (verifyDisplay) verifyDisplay.textContent = verificationCode;
+
+      const sid = 'sess_' + Date.now();
+      const user = 'u_' + Math.floor(100000 + Math.random() * 900000);
+      const pass = 'p_' + Math.floor(100000 + Math.random() * 900000);
+      const exp = Math.floor(Date.now() / 1000) + 1800; // 30 min expiry
+
+      // Standard QRFlux protocol JSON format (matching mobile QrPayload model):
+      const payloadMap = {
+        v: 1,
+        proto: "ftp",
         host: hostIp,
         port: 2121,
-        files: stagedFiles.map(f => ({ name: f.name, size: f.size })),
-        totalSize: totalBytes,
-        ts: Date.now()
-      });
+        sid: sid,
+        user: user,
+        pass: pass,
+        code: verificationCode,
+        exp: exp,
+        files: stagedFiles.map((f, i) => ({
+          id: String(i + 1),
+          name: f.name,
+          size: f.size,
+          category: detectCategory(f.name)
+        })),
+        total: totalBytes
+      };
+
+      const rawJson = JSON.stringify(payloadMap);
 
       new QRCode(qrCodeTarget, {
-        text: payload,
-        width: 220,
-        height: 220,
+        text: rawJson,
+        width: 240,
+        height: 240,
         colorDark: "#0B0F19",
         colorLight: "#FFFFFF",
         correctLevel: QRCode.CorrectLevel.M
@@ -1164,6 +1249,21 @@
 
       qrContainer.classList.add('active');
       qrContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // If PC daemon is running on localhost:8080, automatically stage files:
+      try {
+        for (let i = 0; i < stagedFiles.length; i++) {
+          await fetch(`http://localhost:8080/api/upload?sid=${encodeURIComponent(sid)}&name=${encodeURIComponent(stagedFiles[i].name)}`, {
+            method: 'POST',
+            body: stagedFiles[i],
+            mode: 'cors'
+          }).catch(() => {});
+        }
+        await fetch(`http://localhost:8080/api/start-session?sid=${encodeURIComponent(sid)}`, {
+          method: 'POST',
+          mode: 'cors'
+        }).catch(() => {});
+      } catch (_) {}
     }
 
     function closeQrModal() {
