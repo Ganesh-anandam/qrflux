@@ -51,6 +51,19 @@
       --glow-purple: 0 0 35px rgba(139, 92, 246, 0.35);
     }
 
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .btn-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -1274,36 +1287,52 @@
 
         <!-- QR Display Section -->
         <div class="qr-modal-container" id="qrContainer">
-          <h3 style="font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 700; color: #fff;">
-            Ready for Android Pairing
-          </h3>
-          <p class="qr-instructions">
-            Scan this code inside the <strong>QRFlux Android App</strong> (Tap <em>Receive Files</em>).
-          </p>
+          <div id="pairingElementsContainer">
+            <h3 id="qrMainHeading" style="font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 700; color: #fff;">
+              Ready for Android Pairing
+            </h3>
+            <p class="qr-instructions" id="qrSubtitle">
+              Scan this code inside the <strong>QRFlux Android App</strong> (Tap <em>Receive Files</em>).
+            </p>
 
-          <div style="margin: 8px 0 14px;">
-            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">
-              Verification Code</div>
-            <div
-              style="font-family: 'Outfit', sans-serif; font-size: 34px; font-weight: 800; color: var(--primary); letter-spacing: 4px;"
-              id="qrVerifyCode">482 913</div>
+            <div style="margin: 8px 0 14px;">
+              <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">
+                Verification Code</div>
+              <div
+                style="font-family: 'Outfit', sans-serif; font-size: 34px; font-weight: 800; color: var(--primary); letter-spacing: 4px;"
+                id="qrVerifyCode">482 913</div>
+            </div>
+
+            <div class="qr-box" id="qrCodeTarget"></div>
           </div>
 
-          <div class="qr-box" id="qrCodeTarget"></div>
-
-          <!-- Offline Engine Helper -->
-          <!-- <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px 18px; margin: 16px auto; font-size: 13px; color: var(--text-muted); text-align: left; max-width: 500px;">
-            <div style="font-weight: 700; color: #fff; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
-              <span style="display: none;">⚡ High-Speed Wi-Fi Streaming Engine</span>
+          <!-- Active Live Transfer Panel (shown once phone connects, hides QR!) -->
+          <div id="activeTransferPanel" style="display: none; margin: 16px auto; padding: 20px; background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 16px; text-align: left; max-width: 480px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></span>
+                <span style="font-weight: 700; font-size: 14px; color: #fff;">Transfer In Progress</span>
+              </div>
+              <span id="activeSpeedText" style="font-size: 13px; color: var(--primary); font-family: monospace; font-weight: 700;">0 MB/s</span>
             </div>
-            <div>To stream these files directly over your local Wi-Fi (20–50 MB/s), keep the QRFlux PC host running:</div>
-            <div style="background: #000; border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-family: monospace; color: var(--primary); font-size: 13px; display: flex; justify-content: space-between; align-items: center;">
-              <code>dart run bin/server.dart</code>
-              <button onclick="navigator.clipboard.writeText('dart run bin/server.dart'); alert('Command copied to clipboard!');" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">Copy</button>
+            <div style="font-size: 13px; font-weight: 600; color: #f1f5f9; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="activeFileTitle">file.ext</div>
+            <div style="height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
+              <div id="activeProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00f0ff, #7000ff); transition: width 0.2s ease;"></div>
             </div>
-          </div> -->
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); font-family: monospace;">
+              <span id="activeTransferStatus">Streaming to phone...</span>
+              <span id="activeBytesText">0 / 0 (0%)</span>
+            </div>
+          </div>
 
-          <div>
+          <!-- Complete Success Card -->
+          <div id="completeSuccessBox" style="display: none; padding: 24px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 16px; margin: 16px auto; max-width: 480px; text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 8px;">🎉</div>
+            <h4 style="color: #10b981; font-size: 20px; margin-bottom: 6px; font-weight: 700;">Transfer Complete!</h4>
+            <p id="completeSummaryText" style="color: var(--text-secondary); font-size: 13px; margin-bottom: 0;"></p>
+          </div>
+
+          <div style="margin-top: 16px;">
             <button class="btn btn-secondary" onclick="closeQrModal()">
               Done / Close
             </button>
@@ -1609,109 +1638,199 @@
       return 'other';
     }
 
-    // Environment check & local daemon detection:
-    window.addEventListener('DOMContentLoaded', async () => {
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    // PC Daemon Connection & Transfer Engine
+    let activeDaemonUrl = null;
+    let sseEventSource = null;
+
+    async function detectDaemon() {
+      const candidates = [];
+      const hostInput = document.getElementById('hostIpInput');
+      const inputIp = hostInput ? hostInput.value.trim() : '';
+
+      if (inputIp && !['localhost', '127.0.0.1'].includes(inputIp) && !inputIp.includes('vercel.app') && !inputIp.includes('http')) {
+        candidates.push(`http://${inputIp}:8080`);
+      }
+      candidates.push('http://localhost:8080');
+      candidates.push('http://127.0.0.1:8080');
+
+      for (const url of candidates) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2000);
+          const res = await fetch(`${url}/api/info`, {
+            mode: 'cors',
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.ip) {
+              activeDaemonUrl = url;
+              if (hostInput && (!inputIp || inputIp === '172.16.237.178' || inputIp === '127.0.0.1' || inputIp === 'localhost')) {
+                hostInput.value = data.ip;
+              }
+              const dot = document.getElementById('ipDot');
+              if (dot) dot.style.background = '#10b981';
+              const status = document.getElementById('ipStatusText');
+              if (status) status.textContent = `(🟢 PC Host Connected: ${data.ip})`;
+              return { url, data };
+            }
+          }
+        } catch (_) {}
+      }
+
+      const dot = document.getElementById('ipDot');
+      if (dot) dot.style.background = '#f59e0b';
+      const status = document.getElementById('ipStatusText');
+      if (status) status.textContent = '(⚠️ Run run_pc_host.bat on PC to connect)';
+      return null;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
       const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       const cloudBanner = document.getElementById('cloudHostBanner');
       if (cloudBanner && isLocalHost) {
         cloudBanner.style.display = 'none';
       }
 
-      try {
-        const res = await fetch('http://localhost:8080/api/info', { mode: 'cors' });
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.ip) {
-            const input = document.getElementById('hostIpInput');
-            if (input) input.value = data.ip;
-            const dot = document.getElementById('ipDot');
-            if (dot) dot.style.background = '#10b981';
-            const status = document.getElementById('ipStatusText');
-            if (status) status.textContent = '(🟢 PC Daemon Active: ' + data.ip + ')';
-          }
-        }
-      } catch (e) { }
+      detectDaemon();
+      const hostInput = document.getElementById('hostIpInput');
+      if (hostInput) {
+        hostInput.addEventListener('change', () => detectDaemon());
+      }
     });
 
     async function generateQrModal() {
       if (stagedFiles.length === 0) return;
 
-      qrCodeTarget.innerHTML = '';
+      const generateBtn = document.getElementById('generateQrBtn');
+      const originalBtnHtml = generateBtn.innerHTML;
+      generateBtn.disabled = true;
 
-      const hostInput = document.getElementById('hostIpInput');
-      let hostIp = hostInput ? hostInput.value.trim() : '';
-
-      // Ensure we NEVER use cloud domains like vercel.app for FTP host
-      if (!hostIp || hostIp === 'localhost' || hostIp === '127.0.0.1' || hostIp.includes('vercel.app') || hostIp.includes('http')) {
-        hostIp = '172.16.237.178';
-        if (hostInput) hostInput.value = hostIp;
+      generateBtn.innerHTML = '<span class="btn-spinner"></span> Checking PC host...';
+      const daemon = await detectDaemon();
+      if (!daemon) {
+        alert('Cannot connect to the QRFlux PC Host!\n\n1. Make sure "run_pc_host.bat" is running on your computer.\n2. If using the website from a mobile phone or another computer, enter your PC\'s Wi-Fi IP address in the "Sender Wi-Fi IPv4" field.\n3. Verify both devices are connected to the same Wi-Fi / Hotspot.');
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = originalBtnHtml;
+        return;
       }
 
-      const totalBytes = stagedFiles.reduce((acc, f) => acc + f.size, 0);
-      const codePart1 = Math.floor(100 + Math.random() * 900);
-      const codePart2 = Math.floor(100 + Math.random() * 900);
-      const verificationCode = `${codePart1} ${codePart2}`;
-
-      const verifyDisplay = document.getElementById('qrVerifyCode');
-      if (verifyDisplay) verifyDisplay.textContent = verificationCode;
-
+      const daemonUrl = daemon.url;
       const sid = 'sess_' + Date.now();
-      const user = 'u_' + Math.floor(100000 + Math.random() * 900000);
-      const pass = 'p_' + Math.floor(100000 + Math.random() * 900000);
-      const exp = Math.floor(Date.now() / 1000) + 1800; // 30 min expiry
 
-      // Standard QRFlux protocol JSON format (matching mobile QrPayload model):
-      const payloadMap = {
-        v: 1,
-        proto: "ftp",
-        host: hostIp,
-        port: 2121,
-        sid: sid,
-        user: user,
-        pass: pass,
-        code: verificationCode,
-        exp: exp,
-        files: stagedFiles.map((f, i) => ({
-          id: String(i + 1),
-          name: f.name,
-          size: f.size,
-          category: detectCategory(f.name)
-        })),
-        total: totalBytes
-      };
-
-      const rawJson = JSON.stringify(payloadMap);
-
-      new QRCode(qrCodeTarget, {
-        text: rawJson,
-        width: 240,
-        height: 240,
-        colorDark: "#0B0F19",
-        colorLight: "#FFFFFF",
-        correctLevel: QRCode.CorrectLevel.M
-      });
-
-      qrContainer.classList.add('active');
-      qrContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      // If PC daemon is running on localhost:8080, automatically stage files:
       try {
+        // Stage files to PC daemon
         for (let i = 0; i < stagedFiles.length; i++) {
-          await fetch(`http://localhost:8080/api/upload?sid=${encodeURIComponent(sid)}&name=${encodeURIComponent(stagedFiles[i].name)}`, {
+          const file = stagedFiles[i];
+          generateBtn.innerHTML = `<span class="btn-spinner"></span> Staging (${i + 1}/${stagedFiles.length}): ${escapeHtml(file.name)}...`;
+          const upRes = await fetch(`${daemonUrl}/api/upload?sid=${encodeURIComponent(sid)}&name=${encodeURIComponent(file.name)}`, {
             method: 'POST',
-            body: stagedFiles[i],
+            body: file,
             mode: 'cors'
-          }).catch(() => { });
+          });
+          if (!upRes.ok) {
+            throw new Error(`Failed to stage "${file.name}" to PC Host.`);
+          }
         }
-        await fetch(`http://localhost:8080/api/start-session?sid=${encodeURIComponent(sid)}`, {
+
+        // Start streaming FTP session on PC daemon
+        generateBtn.innerHTML = '<span class="btn-spinner"></span> Generating Transfer QR...';
+        const startRes = await fetch(`${daemonUrl}/api/start-session?sid=${encodeURIComponent(sid)}`, {
           method: 'POST',
           mode: 'cors'
-        }).catch(() => { });
-      } catch (_) { }
+        });
+        if (!startRes.ok) {
+          throw new Error('PC host could not start the streaming session.');
+        }
+
+        const session = await startRes.json();
+
+        // Render official QR Code directly from the server's session.qrRaw
+        qrCodeTarget.innerHTML = '';
+        new QRCode(qrCodeTarget, {
+          text: session.qrRaw,
+          width: 240,
+          height: 240,
+          colorDark: "#0B0F19",
+          colorLight: "#FFFFFF",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+
+        const verifyDisplay = document.getElementById('qrVerifyCode');
+        if (verifyDisplay) verifyDisplay.textContent = session.code;
+
+        document.getElementById('pairingElementsContainer').style.display = 'block';
+        document.getElementById('activeTransferPanel').style.display = 'none';
+        document.getElementById('completeSuccessBox').style.display = 'none';
+        document.getElementById('qrMainHeading').textContent = 'Ready for Android Pairing';
+        document.getElementById('qrSubtitle').innerHTML = 'Scan this code inside the <strong>QRFlux Android App</strong> (Tap <em>Receive Files</em>).';
+
+        qrContainer.classList.add('active');
+        qrContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Connect SSE: Automatically hide QR code when the phone connects and starts transfer!
+        connectDaemonEvents(daemonUrl, session.total);
+
+      } catch (err) {
+        alert('Transfer initialization error: ' + err.message);
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = originalBtnHtml;
+      }
+    }
+
+    function connectDaemonEvents(daemonUrl, totalBatchBytes) {
+      if (sseEventSource) {
+        sseEventSource.close();
+      }
+
+      sseEventSource = new EventSource(`${daemonUrl}/api/events`);
+
+      sseEventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+
+          if (data.type === 'connected' || (data.type === 'client_count' && data.count > 0)) {
+            // STOP SHOWING THE QR CODE IMMEDIATELY!
+            document.getElementById('pairingElementsContainer').style.display = 'none';
+            document.getElementById('activeTransferPanel').style.display = 'block';
+            document.getElementById('completeSuccessBox').style.display = 'none';
+            document.getElementById('qrMainHeading').textContent = 'Transfer In Progress';
+            document.getElementById('qrSubtitle').textContent = 'Sending files directly to your connected Android phone';
+          } else if (data.type === 'progress') {
+            document.getElementById('pairingElementsContainer').style.display = 'none';
+            document.getElementById('activeTransferPanel').style.display = 'block';
+
+            document.getElementById('activeFileTitle').textContent = data.file;
+            const pct = data.total > 0 ? Math.min(100, Math.round((data.transferred / data.total) * 100)) : 0;
+            document.getElementById('activeProgressBar').style.width = pct + '%';
+            document.getElementById('activeBytesText').textContent = `${formatBytes(data.transferred)} / ${formatBytes(data.total)} (${pct}%)`;
+            document.getElementById('activeSpeedText').textContent = `${formatBytes(data.speed)}/s`;
+            document.getElementById('activeTransferStatus').textContent = `Streaming ${data.file} to phone...`;
+          } else if (data.type === 'complete') {
+            document.getElementById('pairingElementsContainer').style.display = 'none';
+            document.getElementById('activeTransferPanel').style.display = 'none';
+            document.getElementById('completeSuccessBox').style.display = 'block';
+            document.getElementById('qrMainHeading').textContent = 'Transfer Complete!';
+            document.getElementById('qrSubtitle').textContent = 'Files received successfully.';
+            document.getElementById('completeSummaryText').textContent = `All files (${formatBytes(totalBatchBytes || 0)}) were safely transferred to your Android phone.`;
+          }
+        } catch (_) {}
+      };
     }
 
     function closeQrModal() {
       qrContainer.classList.remove('active');
+      if (sseEventSource) {
+        sseEventSource.close();
+        sseEventSource = null;
+      }
     }
   </script>
 </body>

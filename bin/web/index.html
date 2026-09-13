@@ -1,1058 +1,1838 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QRFlux — Transfer Freely (PC to Android Direct File Transfer)</title>
-  <link rel="icon" type="image/png" href="logo.png">
+  <title>QRFlux — Transfer Freely • High-Speed Offline Wi-Fi File Sharing</title>
+
+  <!-- SEO & Social Meta Tags -->
+  <meta name="description"
+    content="QRFlux enables lightning-fast 50+ MB/s file transfers directly between PC, Mac, Linux and Android over local Wi-Fi. 100% offline, private, zero cloud.">
+  <meta name="keywords"
+    content="file transfer, wifi share, qr code transfer, offline file transfer, android to pc, qrflux">
+  <meta property="og:title" content="QRFlux — Transfer Freely">
+  <meta property="og:description"
+    content="Direct High-Speed Offline Wi-Fi File Sharing. Zero Cloud, Zero Cables, 100% Private.">
+  <meta property="og:image" content="logo.png">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="logo.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- QRCode.js for client-side QR generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
   <style>
     :root {
-      --bg-dark: #070B12;
-      --card-bg: rgba(15, 23, 42, 0.75);
-      --card-border: rgba(56, 189, 248, 0.18);
-      --primary: #00E5FF;
-      --primary-glow: rgba(0, 229, 255, 0.35);
-      --secondary: #6366F1;
-      --success: #10B981;
-      --warning: #F59E0B;
-      --error: #EF4444;
-      --text-primary: #F8FAFC;
-      --text-secondary: #94A3B8;
-      --text-muted: #64748B;
+      --bg-dark: #070a12;
+      --bg-surface: rgba(15, 23, 42, 0.75);
+      --bg-card: rgba(22, 32, 54, 0.65);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(0, 240, 255, 0.35);
+      --primary: #00f0ff;
+      --primary-rgb: 0, 240, 255;
+      --accent: #6366f1;
+      --accent-glow: #8b5cf6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-faint: #64748b;
+      --glow-cyan: 0 0 35px rgba(0, 240, 255, 0.35);
+      --glow-purple: 0 0 35px rgba(139, 92, 246, 0.35);
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .btn-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
 
     body {
-      background: radial-gradient(circle at top center, #111A2E 0%, var(--bg-dark) 70%);
-      color: var(--text-primary);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 16px 60px;
-    }
-
-    header {
-      width: 100%;
-      max-width: 820px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 24px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      margin-bottom: 32px;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .brand-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 20px var(--primary-glow);
-    }
-
-    .brand-icon svg {
-      width: 24px;
-      height: 24px;
-      fill: #060911;
-    }
-
-    .brand-text h1 {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      background: linear-gradient(135deg, #FFFFFF, #E2E8F0);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .brand-text p {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .network-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #34D399;
-    }
-
-    .network-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #10B981;
-      box-shadow: 0 0 8px #10B981;
-    }
-
-    main {
-      width: 100%;
-      max-width: 820px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 36px;
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
-    }
-
-    .view {
-      display: none;
-    }
-
-    .view.active {
-      display: block;
-      animation: fadeIn 0.3s ease forwards;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .card-title {
-      font-size: 24px;
-      font-weight: 800;
-      margin-bottom: 8px;
-      letter-spacing: -0.5px;
-    }
-
-    .card-subtitle {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-bottom: 28px;
-      line-height: 1.5;
-    }
-
-    /* Drop Zone */
-    .drop-zone {
-      border: 2px dashed rgba(56, 189, 248, 0.35);
-      background: rgba(14, 165, 233, 0.04);
-      border-radius: 16px;
-      padding: 48px 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.25s ease;
+      overflow-x: hidden;
+      line-height: 1.6;
       position: relative;
     }
 
-    .drop-zone:hover, .drop-zone.dragover {
-      border-color: var(--primary);
-      background: rgba(0, 229, 255, 0.08);
-      box-shadow: 0 0 25px rgba(0, 229, 255, 0.18);
+    /* Ambient Background Glows */
+    .ambient-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
     }
 
-    .drop-icon {
-      width: 60px;
-      height: 60px;
-      margin: 0 auto 16px;
-      background: rgba(0, 229, 255, 0.1);
+    .ambient-blob {
+      position: absolute;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      filter: blur(120px);
+      opacity: 0.22;
+      animation: float 20s infinite alternate ease-in-out;
     }
 
-    .drop-icon svg {
-      width: 32px;
-      height: 32px;
-      stroke: var(--primary);
-      fill: none;
-      stroke-width: 2;
+    .blob-1 {
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+      top: -100px;
+      left: -100px;
     }
 
-    .drop-prompt {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 6px;
+    .blob-2 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+      top: 30%;
+      right: -150px;
+      animation-duration: 25s;
     }
 
-    .drop-sub {
-      font-size: 13px;
-      color: var(--text-muted);
+    .blob-3 {
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, #0ea5e9 0%, transparent 70%);
+      bottom: -100px;
+      left: 20%;
+      animation-duration: 18s;
     }
 
-    #fileInput {
-      display: none;
+    @keyframes float {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      100% {
+        transform: translate(60px, 40px) scale(1.08);
+      }
     }
 
-    /* Files List */
-    .files-container {
-      margin-top: 24px;
-      max-height: 280px;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .file-row {
+    /* Header & Navigation */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      background: rgba(7, 10, 18, 0.75);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 16px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 12px 16px;
+    }
+
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+    }
+
+    .brand-logo-img {
+      width: 44px;
+      height: 44px;
       border-radius: 12px;
-      margin-bottom: 10px;
-      transition: all 0.2s ease;
+      object-fit: contain;
+      box-shadow: 0 4px 16px rgba(0, 240, 255, 0.3);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .file-row:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(56, 189, 248, 0.2);
+    .brand-logo-img:hover {
+      transform: scale(1.05) rotate(2deg);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
     }
 
-    .file-info {
+    .brand-info h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-badge {
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(0, 240, 255, 0.15);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: -2px;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--primary);
+    }
+
+    .nav-actions {
       display: flex;
       align-items: center;
       gap: 12px;
-      overflow: hidden;
-      min-width: 0;
-    }
-
-    .file-badge {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      background: rgba(99, 102, 241, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #818CF8;
-      font-size: 11px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .file-details {
-      overflow: hidden;
-      min-width: 0;
-    }
-
-    .file-name {
-      font-size: 14px;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .file-size {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
-
-    .file-remove {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 6px;
-      border-radius: 6px;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .file-remove:hover {
-      color: var(--error);
-      background: rgba(239, 68, 68, 0.12);
-    }
-
-    /* Action Bar */
-    .action-bar {
-      margin-top: 28px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .batch-summary {
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    .batch-summary span {
-      color: var(--text-primary);
-      font-weight: 700;
     }
 
     .btn {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 12px 24px;
+      gap: 8px;
+      padding: 10px 20px;
       border-radius: 12px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s ease;
+      font-size: 14px;
+      font-weight: 600;
       text-decoration: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border: none;
+      outline: none;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--primary), #0284C7);
-      color: #040810;
-      box-shadow: 0 4px 16px var(--primary-glow);
+      background: linear-gradient(135deg, #00f0ff 0%, #0284c7 100%);
+      color: #041019;
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
     }
 
-    .btn-primary:hover:not(:disabled) {
+    .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(0, 229, 255, 0.5);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
+      box-shadow: 0 6px 28px rgba(0, 240, 255, 0.5);
     }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-primary);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      backdrop-filter: blur(10px);
     }
 
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
     }
 
-    /* QR View */
-    .qr-view-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    /* Hero Section */
+    .hero {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 24px 60px;
       text-align: center;
     }
 
-    .qr-box-wrapper {
-      background: #FFFFFF;
-      padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 0 35px var(--primary-glow);
-      margin: 16px 0 24px;
-      display: inline-block;
-      transition: all 0.3s ease;
-    }
-
-    #qrcode img, #qrcode canvas {
-      display: block;
-      margin: 0 auto;
-      max-width: 100%;
-      height: auto;
-    }
-
-    .verify-code-badge {
+    .hero-pill {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      background: rgba(99, 102, 241, 0.15);
-      border: 1px solid rgba(99, 102, 241, 0.4);
-      padding: 8px 20px;
-      border-radius: 12px;
-      margin-bottom: 24px;
-    }
-
-    .verify-label {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #A5B4FC;
-      font-weight: 700;
-    }
-
-    .verify-val {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: 3px;
-      color: #FFFFFF;
-      font-family: "JetBrains Mono", Consolas, monospace;
-    }
-
-    .instructions {
-      max-width: 480px;
-      width: 100%;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 16px 20px;
-      text-align: left;
-      margin-bottom: 24px;
-    }
-
-    .instruction-step {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 10px;
-      font-size: 13px;
-      color: var(--text-secondary);
-      line-height: 1.4;
-    }
-
-    .instruction-step:last-child {
-      margin-bottom: 0;
-    }
-
-    .step-num {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: #060911;
-      font-size: 11px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-
-    .status-pill-large {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 20px;
+      gap: 8px;
+      padding: 6px 16px;
       border-radius: 30px;
-      font-size: 14px;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      color: var(--primary);
+      font-size: 13px;
       font-weight: 600;
       margin-bottom: 24px;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
     }
 
-    .status-waiting {
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      color: #FBBF24;
+    .hero-pill svg {
+      width: 16px;
+      height: 16px;
     }
 
-    .status-transferring {
-      background: rgba(56, 189, 248, 0.15);
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      color: #38BDF8;
-    }
-
-    .status-success {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      color: #34D399;
-    }
-
-    .spinner {
-      width: 14px;
-      height: 14px;
-      border: 2px solid currentColor;
-      border-right-color: transparent;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Active Transfer Dashboard (Replaces QR code once connected) */
-    .active-transfer-panel {
-      display: none;
-      width: 100%;
-      max-width: 520px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(0, 229, 255, 0.3);
-      border-radius: 20px;
-      padding: 32px 24px;
-      margin-bottom: 24px;
-      animation: fadeIn 0.4s ease;
-      box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
-    }
-
-    .transfer-animation-box {
-      width: 76px;
-      height: 76px;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      background: rgba(0, 229, 255, 0.1);
-      border: 2px solid var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      animation: pulseGlow 2s infinite ease-in-out;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); transform: scale(1); }
-      50% { box-shadow: 0 0 35px rgba(0, 229, 255, 0.7); transform: scale(1.05); }
-    }
-
-    .transfer-animation-box svg {
-      width: 36px;
-      height: 36px;
-      stroke: var(--primary);
-      fill: none;
-      stroke-width: 2;
-      animation: bounceHorizontal 1.5s infinite ease-in-out;
-    }
-
-    @keyframes bounceHorizontal {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-4px); }
-    }
-
-    .active-file-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .active-transfer-status {
-      font-size: 13px;
-      color: var(--text-secondary);
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 60px;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
       margin-bottom: 20px;
     }
 
-    .progress-bar-container {
-      width: 100%;
-      height: 12px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 6px;
-      overflow: hidden;
-      margin-bottom: 14px;
+    .gradient-text {
+      background: linear-gradient(135deg, #00f0ff 10%, #a855f7 60%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    .progress-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      border-radius: 6px;
-      transition: width 0.2s ease;
-      box-shadow: 0 0 12px var(--primary);
+    .hero-subtitle {
+      font-size: 19px;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto 36px;
+      font-weight: 400;
     }
 
-    .transfer-metrics-row {
+    .hero-buttons {
       display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-top: 4px;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 50px;
     }
 
-    .metric-val {
-      font-weight: 700;
-      color: var(--text-primary);
+    /* Main Container & Tabs */
+    .app-container {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 0 auto 80px;
+      padding: 0 20px;
     }
 
-    /* Complete State */
-    .complete-success-box {
+    .tab-nav {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .tab-btn {
+      padding: 10px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn.active {
+      background: rgba(0, 240, 255, 0.12);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+    }
+
+    /* Glass Panels */
+    .tab-content {
       display: none;
-      width: 100%;
-      max-width: 520px;
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      border-radius: 20px;
-      padding: 32px 24px;
-      margin-bottom: 24px;
-      animation: fadeIn 0.4s ease;
     }
 
-    .complete-icon {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: rgba(16, 185, 129, 0.18);
-      color: #34D399;
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .glass-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      opacity: 0.5;
+    }
+
+    /* Drop Zone */
+    .drop-zone {
+      border: 2px dashed rgba(0, 240, 255, 0.35);
+      background: rgba(0, 240, 255, 0.02);
+      border-radius: 20px;
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: var(--primary);
+      background: rgba(0, 240, 255, 0.06);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+    }
+
+    .drop-zone input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .drop-icon {
+      width: 68px;
+      height: 68px;
+      border-radius: 18px;
+      background: rgba(0, 240, 255, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 16px;
-      font-size: 36px;
+      color: var(--primary);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
     }
 
-    @media (max-width: 640px) {
-      body {
-        padding: 16px 12px 40px;
-      }
+    .drop-icon svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .drop-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .drop-hint {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* File List */
+    .file-list {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      font-size: 14px;
+    }
+
+    .file-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    .file-item-name {
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 380px;
+    }
+
+    .file-item-size {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .file-item-del {
+      color: var(--danger);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .file-item-del:hover {
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    /* Actions Bar */
+    .stage-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* QR Code Display Card */
+    .qr-modal-container {
+      display: none;
+      margin-top: 30px;
+      padding: 30px;
+      background: rgba(10, 16, 30, 0.9);
+      border: 1px solid var(--border-glow);
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: var(--glow-cyan);
+    }
+
+    .qr-modal-container.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .qr-box {
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 16px;
+      display: inline-block;
+      margin: 20px auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .qr-instructions {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 460px;
+      margin: 0 auto 16px;
+    }
+
+    /* Features Grid */
+    .features-section {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 60px auto 100px;
+      padding: 0 24px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 32px;
+      backdrop-filter: blur(16px);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(0, 240, 255, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 35px rgba(0, 240, 255, 0.12);
+    }
+
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(0, 240, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    .feature-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .feature-text {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Pairing Steps Visual */
+    .steps-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 30px;
+    }
+
+    .step-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .step-num {
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      color: #041019;
+      font-weight: 800;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 16px;
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* APK Download Banner */
+    .apk-banner {
+      background: linear-gradient(135deg, rgba(16, 24, 40, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 24px;
+      padding: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      box-shadow: 0 20px 50px rgba(0, 240, 255, 0.1);
+      flex-wrap: wrap;
+    }
+
+    .apk-banner-left {
+      max-width: 600px;
+    }
+
+    .apk-tag {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Footer */
+    footer {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--border-subtle);
+      padding: 40px 24px;
+      text-align: center;
+      color: var(--text-faint);
+      font-size: 14px;
+      background: rgba(7, 10, 18, 0.95);
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--primary);
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    /* ==========================================================================
+       Comprehensive Responsive Design System (Mobile, Tablet, Desktop)
+       ========================================================================== */
+
+    /* Ensure no horizontal scroll across all viewports */
+    html,
+    body {
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+    }
+
+    /* Tablets & Medium Screens (max-width: 992px) */
+    @media (max-width: 992px) {
       header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-        margin-bottom: 20px;
-        padding-bottom: 16px;
+        padding: 16px 20px;
       }
-      .brand-text h1 { font-size: 18px; }
-      .brand-text p { font-size: 11px; }
-      .network-pill { font-size: 12px; padding: 4px 10px; }
-      .card { padding: 20px 14px; border-radius: 18px; }
-      .card-title { font-size: 20px; }
-      .card-subtitle { font-size: 13px; }
-      .drop-zone { padding: 32px 14px; border-radius: 16px; }
-      .file-name { max-width: calc(100vw - 160px); font-size: 13px; }
-      .actions-bar, .action-bar { flex-direction: column; align-items: stretch; gap: 12px; }
-      .btn { width: 100%; justify-content: center; }
-      .qr-box-wrapper { padding: 12px; margin: 12px 0 16px; max-width: 100%; }
-      #qrcode canvas, #qrcode img { max-width: 100% !important; height: auto !important; }
-      .verify-val { font-size: 22px; letter-spacing: 2px; }
-      .instructions { padding: 14px 14px; }
-      .active-transfer-panel { padding: 24px 16px; }
-      .complete-success-box { padding: 24px 16px; }
+
+      nav {
+        gap: 16px;
+      }
+
+      .hero {
+        padding: 60px 20px 40px;
+      }
+
+      .hero-title {
+        font-size: clamp(34px, 5vw, 46px);
+      }
+
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+
+      .apk-banner {
+        padding: 36px 28px;
+        gap: 28px;
+      }
+    }
+
+    /* Mobile Tablets & Large Phones (max-width: 768px) */
+    @media (max-width: 768px) {
+      header {
+        padding: 12px 16px;
+      }
+
+      nav {
+        display: none;
+        /* Streamline header on mobile */
+      }
+
+      .brand-info h1 {
+        font-size: 19px;
+      }
+
+      .brand-badge {
+        display: none;
+        /* Conserve horizontal space */
+      }
+
+      .nav-actions {
+        gap: 8px;
+      }
+
+      .nav-actions .btn {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+
+      .hero {
+        padding: 40px 16px 30px;
+      }
+
+      .hero-pill {
+        font-size: 12px;
+        padding: 5px 12px;
+        margin-bottom: 16px;
+      }
+
+      .hero-title {
+        font-size: clamp(28px, 7vw, 38px);
+        letter-spacing: -0.5px;
+        margin-bottom: 16px;
+      }
+
+      .hero-subtitle {
+        font-size: 14.5px;
+        line-height: 1.5;
+        margin-bottom: 24px;
+        padding: 0 8px;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        max-width: 320px;
+        margin: 0 auto;
+        gap: 12px;
+      }
+
+      .hero-buttons .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 13px 20px;
+      }
+
+      .app-container {
+        padding: 0 14px;
+        margin: 20px auto 40px;
+      }
+
+      .tab-nav {
+        width: 100%;
+        gap: 8px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        padding: 11px 12px;
+        font-size: 13px;
+        justify-content: center;
+      }
+
+      .glass-card {
+        padding: 22px 16px;
+        border-radius: 18px;
+      }
+
+      #cloudHostBanner {
+        padding: 16px 14px !important;
+        border-radius: 14px !important;
+        margin-bottom: 20px !important;
+      }
+
+      #cloudHostBanner>div:first-child {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+      }
+
+      #cloudHostBanner a.btn {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 12px 16px !important;
+      }
+
+      .drop-zone {
+        padding: 36px 14px;
+        border-radius: 16px;
+      }
+
+      .drop-icon {
+        width: 54px;
+        height: 54px;
+        margin-bottom: 12px;
+      }
+
+      .drop-title {
+        font-size: 16px;
+      }
+
+      .drop-hint {
+        font-size: 13px;
+      }
+
+      .file-item {
+        padding: 10px 12px;
+      }
+
+      .file-item-name {
+        max-width: 180px;
+      }
+
+      .stage-actions {
+        flex-direction: column;
+        gap: 14px;
+        align-items: stretch;
+      }
+
+      .stage-actions>div:last-child {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .stage-actions .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 16px;
+      }
+
+      .qr-modal-container {
+        padding: 20px 12px;
+        margin-top: 20px;
+        border-radius: 16px;
+      }
+
+      .qr-box {
+        padding: 10px;
+        margin: 14px auto;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      .qr-box canvas,
+      .qr-box img {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+
+      #qrVerifyCode {
+        font-size: clamp(26px, 8vw, 36px) !important;
+        letter-spacing: 2px !important;
+      }
+
+      .features-section {
+        margin: 40px auto 60px;
+        padding: 0 16px;
+      }
+
+      .section-header {
+        margin-bottom: 30px;
+      }
+
+      .section-title {
+        font-size: 26px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .feature-card {
+        padding: 22px 18px;
+        border-radius: 16px;
+      }
+
+      .steps-container {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .apk-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 28px 18px;
+        gap: 20px;
+        border-radius: 20px;
+      }
+
+      .apk-banner-left h2 {
+        font-size: 24px !important;
+      }
+
+      .apk-banner a.btn {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px !important;
+      }
+
+      .apk-banner>div:first-child>div:last-child {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      footer {
+        padding: 40px 16px 60px;
+      }
+    }
+
+    /* Small Mobile Phones (max-width: 480px) */
+    @media (max-width: 480px) {
+      header {
+        padding: 10px 12px;
+      }
+
+      .brand-logo-img {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+      }
+
+      .brand-info h1 {
+        font-size: 17px;
+      }
+
+      .brand-info p {
+        display: none;
+      }
+
+      .nav-actions .btn-secondary {
+        display: none;
+        /* Keep header clean: only show primary download action */
+      }
+
+      .nav-actions .btn-primary {
+        padding: 7px 12px;
+        font-size: 12px;
+      }
+
+      .hero {
+        padding: 30px 12px 24px;
+      }
+
+      .hero-title {
+        font-size: 27px;
+        line-height: 1.2;
+      }
+
+      .tab-btn svg {
+        display: none;
+        /* Simplify tab buttons on tiny screens */
+      }
+
+      .file-item-name {
+        max-width: 140px;
+        font-size: 13px;
+      }
     }
   </style>
-  <!-- Load QRCode library from local script or unpkg fallback -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
+
 <body>
 
+  <!-- Ambient Glowing Blobs -->
+  <div class="ambient-bg">
+    <div class="ambient-blob blob-1"></div>
+    <div class="ambient-blob blob-2"></div>
+    <div class="ambient-blob blob-3"></div>
+  </div>
+
+  <!-- Header Navigation -->
   <header>
-    <div class="brand">
-      <img src="logo.png" alt="QRFlux Logo" style="width: 44px; height: 44px; border-radius: 12px; object-fit: contain; box-shadow: 0 4px 16px rgba(0, 240, 255, 0.25); border: 1px solid rgba(0, 240, 255, 0.3);">
-      <div class="brand-text">
-        <h1>QRFlux Web Host</h1>
-        <p>Transfer Freely • Direct High-Speed Wi-Fi Sharing</p>
+    <a href="#" class="brand-container">
+      <img src="logo.png" alt="QRFlux Logo" class="brand-logo-img">
+      <div class="brand-info">
+        <h1>QRFlux <span class="brand-badge">v1.0.0</span></h1>
+        <p>Transfer Freely • Offline Wi-Fi</p>
       </div>
-    </div>
-    <div class="network-pill" id="networkStatus">
-      <div class="network-dot"></div>
-      <span id="hostIpText">Detecting Wi-Fi...</span>
+    </a>
+
+    <nav>
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#guide" class="nav-link">How It Works</a>
+      <a href="#sender" class="nav-link">Web Sender</a>
+      <a href="#download" class="nav-link">Download APK</a>
+    </nav>
+
+    <div class="nav-actions">
+      <a href="https://github.com/Ganesh-anandam/qrflux" target="_blank" class="btn btn-secondary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+        </svg>
+        GitHub
+      </a>
+      <a href="#download" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Get APK
+      </a>
     </div>
   </header>
 
-  <main>
-    <!-- VIEW 1: FILE SELECTION -->
-    <div id="selectView" class="view card active">
-      <h2 class="card-title">Send Files to Android</h2>
-      <p class="card-subtitle">Choose files of any size to stage and send directly over your local offline network</p>
-
-      <div class="drop-zone" id="dropZone">
-        <input type="file" id="fileInput" multiple>
-        <div class="drop-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="17 8 12 3 7 8"></polyline>
-            <line x1="12" y1="3" x2="12" y2="15"></line>
-          </svg>
-        </div>
-        <div class="drop-prompt">Drag & drop files here, or click to browse</div>
-        <div class="drop-sub">Supports any file format (Documents, 4K Videos, Photos, Archives, APKs)</div>
-      </div>
-
-      <div class="files-container" id="filesContainer" style="display: none;"></div>
-
-      <div class="action-bar">
-        <div class="batch-summary" id="batchSummary">No files selected</div>
-        <button class="btn btn-primary" id="startBtn" disabled>
-          <span>Generate QR Code</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
-        </button>
-      </div>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+      </svg>
+      Direct Local Wi-Fi Transfers • Up to 50 MB/s
     </div>
 
-    <!-- VIEW 2: QR CODE PAIRING & LIVE TRANSFER STATUS -->
-    <div id="qrView" class="view card">
-      <div class="qr-view-container">
-        <h2 class="card-title" id="qrMainHeading">Pair with Android Phone</h2>
-        <p class="card-subtitle" id="qrSubtitle">Scan this QR code with the <strong>QR Transfer</strong> app on your Android phone</p>
+    <h1 class="hero-title">
+      Transfer Freely.<br>
+      <span class="gradient-text">Zero Cloud. Zero Size Limits.</span>
+    </h1>
 
-        <!-- Status Pill -->
-        <div class="status-pill-large status-waiting" id="transferStatusPill">
-          <div class="spinner" id="statusSpinner"></div>
-          <span id="statusText">Waiting for phone to scan...</span>
+    <p class="hero-subtitle">
+      Direct point-to-point Wi-Fi streaming between your PC, Mac, Linux, and Android devices. Instant QR handshake,
+      completely private, and works 100% offline.
+    </p>
+
+    <div class="hero-buttons">
+      <a href="#download" class="btn btn-primary" style="padding: 14px 28px; font-size: 16px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download Android App
+      </a>
+      <a href="#sender" class="btn btn-secondary" style="padding: 14px 28px; font-size: 16px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+          <path d="M14 14h2v2h-2zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z"></path>
+        </svg>
+        Launch Web Sender
+      </a>
+    </div>
+  </section>
+
+  <!-- Main Interactive App Container -->
+  <section class="app-container" id="sender">
+    <div class="tab-nav">
+      <button class="tab-btn active" id="tabBtnSender" onclick="switchTab('senderView')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+        Web File Sender
+      </button>
+      <button class="tab-btn" id="tabBtnGuide" onclick="switchTab('guideView')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        How It Works
+      </button>
+    </div>
+
+    <!-- TAB 1: WEB SENDER -->
+    <div class="tab-content active" id="senderView">
+      <div class="glass-card">
+        <!-- Local PC Host Launcher Banner (For Vercel Cloud Visitors) -->
+        <div id="cloudHostBanner"
+          style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(99, 102, 241, 0.15)); border: 1px solid rgba(0, 240, 255, 0.4); border-radius: 18px; padding: 22px 26px; margin-bottom: 28px; box-shadow: 0 10px 30px rgba(0, 240, 255, 0.08);">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <div
+                style="font-family: 'Outfit', sans-serif; font-size: 19px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px;">
+                <span>⚡ Transfer Files from this PC to Android</span>
+                <span
+                  style="font-size: 11px; background: rgba(0, 240, 255, 0.2); color: var(--primary); padding: 3px 8px; border-radius: 6px; font-weight: 700;">50+
+                  MB/s OFFLINE</span>
+              </div>
+              <p style="color: var(--text-muted); font-size: 13.5px; margin-top: 6px; max-width: 580px;">
+                QRFlux streams files directly across your local Wi-Fi router or hotspot with <strong>zero cloud
+                  upload</strong>. To beam multi-GB files from this computer, open your Local PC Host:
+              </p>
+            </div>
+            <a href="http://localhost:8080" target="_blank" rel="noopener noreferrer" class="btn btn-primary"
+              style="padding: 13px 26px; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.35);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+              Open Local PC Host (localhost:8080)
+            </a>
+          </div>
+          <div
+            style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 12px; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <span>💡 <strong>Quick Start:</strong> Double-click <code
+                style="background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 6px; color: var(--primary); font-family: monospace;">run_pc_host.bat</code>
+              in your QRFlux project folder.</span>
+            <span style="color: #34d399; font-weight: 600;">🔒 100% Offline • Zero Cellular Data • Unlimited File
+              Size</span>
+          </div>
         </div>
 
-        <!-- QR Code Container (Visible during pairing, HIDDEN immediately once connected) -->
-        <div id="pairingElementsContainer">
-          <div class="qr-box-wrapper" id="qrBoxWrapper">
-            <div id="qrcode"></div>
-          </div>
+        <h2 style="font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 8px;">
+          Direct Wi-Fi Pairing
+        </h2>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+          Set your laptop's local Wi-Fi IPv4 address below, select files, and click <strong>Generate Transfer
+            QR</strong>.
+        </p>
 
-          <div class="verify-code-badge" id="verifyBadge">
-            <span class="verify-label">Verification Code</span>
-            <span class="verify-val" id="verifyCodeDisplay">----</span>
+        <!-- Network IP Bar -->
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 14px; padding: 12px 18px; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div
+              style="width: 10px; height: 10px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px var(--primary);"
+              id="ipDot"></div>
+            <span style="font-size: 13px; font-weight: 600; color: #fff;">Sender Wi-Fi IPv4:</span>
+            <span style="font-size: 11px; color: var(--text-muted);" id="ipStatusText">(Local Wi-Fi IP)</span>
           </div>
-
-          <div class="instructions" id="instructionsBox">
-            <div class="instruction-step">
-              <div class="step-num">1</div>
-              <div>Open <strong>QR Transfer</strong> on your Android phone</div>
-            </div>
-            <div class="instruction-step">
-              <div class="step-num">2</div>
-              <div>Tap <strong>Receive Files</strong> and scan this QR code</div>
-            </div>
-            <div class="instruction-step">
-              <div class="step-num">3</div>
-              <div>Confirm the verification code matches, then tap <strong>Accept</strong></div>
-            </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="text" id="hostIpInput" value="172.16.237.178"
+              style="background: rgba(10, 16, 30, 0.85); border: 1px solid rgba(0, 240, 255, 0.4); color: var(--primary); font-family: monospace; font-size: 14px; font-weight: 700; padding: 6px 14px; border-radius: 8px; width: 160px; text-align: center;"
+              placeholder="192.168.1.X" title="Set this to your laptop's local Wi-Fi IP">
+            <span style="font-size: 11px; color: var(--text-muted);">Port 2121</span>
           </div>
         </div>
 
-        <!-- Live Transfer Panel (Active when phone is connected & transferring) -->
-        <div class="active-transfer-panel" id="activeTransferPanel">
-          <div class="transfer-animation-box">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        <!-- Dropzone -->
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="fileInput" multiple>
+          <div class="drop-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
           </div>
-          <div class="active-file-title" id="activeFileTitle">Preparing transfer...</div>
-          <div class="active-transfer-status" id="activeTransferStatus">Streaming data to phone via high-speed local FTP</div>
+          <div class="drop-title">Drag & drop files here</div>
+          <div class="drop-hint">or click to browse from your computer (Any size, any format)</div>
+        </div>
 
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill" id="activeProgressBar"></div>
+        <!-- File List -->
+        <div class="file-list" id="fileList"></div>
+
+        <!-- Actions -->
+        <div class="stage-actions">
+          <div style="font-size: 14px; color: var(--text-muted);" id="stagedSummary">
+            0 files selected (0 KB)
           </div>
-
-          <div class="transfer-metrics-row">
-            <span>Transferred: <span class="metric-val" id="activeBytesText">0 MB / 0 MB</span></span>
-            <span>Speed: <span class="metric-val" id="activeSpeedText">0 MB/s</span></span>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-secondary" id="clearBtn" onclick="clearFiles()" style="display: none;">
+              Clear All
+            </button>
+            <button class="btn btn-primary" id="generateQrBtn" onclick="generateQrModal()" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                <path d="M14 14h2v2h-2zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z"></path>
+              </svg>
+              Generate Transfer QR
+            </button>
           </div>
         </div>
 
-        <!-- Complete Success Box -->
-        <div class="complete-success-box" id="completeSuccessBox">
-          <div class="complete-icon">✓</div>
-          <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">Transfer Complete!</h3>
-          <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;" id="completeSummaryText">All files have been safely downloaded to your Android device.</p>
-        </div>
+        <!-- QR Display Section -->
+        <div class="qr-modal-container" id="qrContainer">
+          <div id="pairingElementsContainer">
+            <h3 id="qrMainHeading" style="font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 700; color: #fff;">
+              Ready for Android Pairing
+            </h3>
+            <p class="qr-instructions" id="qrSubtitle">
+              Scan this code inside the <strong>QRFlux Android App</strong> (Tap <em>Receive Files</em>).
+            </p>
 
-        <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
-          <button class="btn btn-secondary" id="cancelBtn">Cancel Session</button>
-          <button class="btn btn-primary" id="newTransferBtn" style="display: none;">Send More Files</button>
+            <div style="margin: 8px 0 14px;">
+              <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">
+                Verification Code</div>
+              <div
+                style="font-family: 'Outfit', sans-serif; font-size: 34px; font-weight: 800; color: var(--primary); letter-spacing: 4px;"
+                id="qrVerifyCode">482 913</div>
+            </div>
+
+            <div class="qr-box" id="qrCodeTarget"></div>
+          </div>
+
+          <!-- Active Live Transfer Panel (shown once phone connects, hides QR!) -->
+          <div id="activeTransferPanel" style="display: none; margin: 16px auto; padding: 20px; background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 16px; text-align: left; max-width: 480px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></span>
+                <span style="font-weight: 700; font-size: 14px; color: #fff;">Transfer In Progress</span>
+              </div>
+              <span id="activeSpeedText" style="font-size: 13px; color: var(--primary); font-family: monospace; font-weight: 700;">0 MB/s</span>
+            </div>
+            <div style="font-size: 13px; font-weight: 600; color: #f1f5f9; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="activeFileTitle">file.ext</div>
+            <div style="height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
+              <div id="activeProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00f0ff, #7000ff); transition: width 0.2s ease;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); font-family: monospace;">
+              <span id="activeTransferStatus">Streaming to phone...</span>
+              <span id="activeBytesText">0 / 0 (0%)</span>
+            </div>
+          </div>
+
+          <!-- Complete Success Card -->
+          <div id="completeSuccessBox" style="display: none; padding: 24px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 16px; margin: 16px auto; max-width: 480px; text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 8px;">🎉</div>
+            <h4 style="color: #10b981; font-size: 20px; margin-bottom: 6px; font-weight: 700;">Transfer Complete!</h4>
+            <p id="completeSummaryText" style="color: var(--text-secondary); font-size: 13px; margin-bottom: 0;"></p>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <button class="btn btn-secondary" onclick="closeQrModal()">
+              Done / Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </main>
+
+    <!-- TAB 2: HOW IT WORKS / GUIDE -->
+    <div class="tab-content" id="guideView">
+      <div class="glass-card">
+        <h2 style="font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 8px;">
+          Direct Point-to-Point Architecture
+        </h2>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">
+          QRFlux uses zero cloud servers. Transfers stream directly through your local Wi-Fi router or phone hotspot at
+          native device hardware speeds.
+        </p>
+
+        <div class="steps-container">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-title">Stage Your Files</div>
+            <div class="step-desc">
+              Drop documents, 4K videos, zip archives, or photos into the Web Sender. File checksums are calculated
+              instantly.
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-title">Scan QR on Android</div>
+            <div class="step-desc">
+              Open the QRFlux Android app and tap <strong>Scan QR Code</strong>. The app reads the ephemeral session key
+              and local IP in 0.2s.
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-title">Stream at Full Speed</div>
+            <div class="step-desc">
+              The transfer streams over raw high-performance TCP sockets (20-50 MB/s). Saved straight into your Android
+              Downloads folder!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="features-section" id="features">
+    <div class="section-header">
+      <h2 class="section-title">Engineered for Extreme Speed & Privacy</h2>
+      <p class="section-desc">Experience local transfers without the friction of slow bluetooth or intrusive cloud
+        storage.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <h3 class="feature-title">50+ MB/s Gigabyte Transfers</h3>
+        <p class="feature-text">Bypasses external internet bottlenecks. Move 10GB movie libraries or massive ROMs in
+          seconds.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <h3 class="feature-title">100% Private & Offline</h3>
+        <p class="feature-text">Your data never touches a 3rd party server. No telemetry, no accounts, and no data
+          tracking.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            <path d="M14 14h2v2h-2zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z"></path>
+          </svg>
+        </div>
+        <h3 class="feature-title">Zero-Config QR Handshake</h3>
+        <p class="feature-text">Forget typing complex IP addresses or PIN codes. One scan establishes instant peer
+          authorization.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <h3 class="feature-title">In-App Received Explorer</h3>
+        <p class="feature-text">View completed and failed transfers. Open files instantly or view exact filesystem
+          storage paths in Android.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        </div>
+        <h3 class="feature-title">Cross-Platform Host</h3>
+        <p class="feature-text">Send from Windows, macOS, or Linux using the high-performance Dart daemon or any web
+          browser.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h3 class="feature-title">Zero Truncation Guarantee</h3>
+        <p class="feature-text">Engineered with custom frame flushing and atomic verification so 100% of large files
+          transfer without stopping at 99%.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download APK Section -->
+  <section class="app-container" id="download">
+    <div class="apk-banner">
+      <div class="apk-banner-left">
+        <span class="apk-tag">RELEASE v1.0.0 STABLE</span>
+        <h2
+          style="font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 12px;">
+          Get QRFlux for Android
+        </h2>
+        <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 16px;">
+          Install the APK on any Android 8.0+ smartphone or tablet. No Google Play account required. Sideload and start
+          sharing in seconds.
+        </p>
+        <div style="display: flex; gap: 16px; font-size: 13px; color: var(--text-faint);">
+          <span>📦 Size: ~24 MB</span>
+          <span>🛡️ Verified & Virus-free</span>
+          <span>⚡ Direct Download</span>
+        </div>
+      </div>
+      <div>
+        <a href="qrflux-app.apk" class="btn btn-primary" download style="padding: 16px 36px; font-size: 17px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download APK (.apk)
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-brand">
+      <img src="logo.png" alt="QRFlux Logo" style="width: 28px; height: 28px; border-radius: 8px;">
+      <span style="font-family: 'Outfit', sans-serif; font-weight: 700; color: #fff; font-size: 16px;">QRFlux</span>
+    </div>
+    <p style="margin-bottom: 10px;">
+      Direct High-Speed Offline Wi-Fi File Sharing • Transfer Freely
+    </p>
+    <p style="font-size: 12px;">
+      Open Source project hosted on <a href="https://github.com/Ganesh-anandam/qrflux" target="_blank">GitHub</a>.
+      Deployable seamlessly to <a href="https://vercel.com" target="_blank">Vercel</a>.
+    </p>
+  </footer>
 
   <script>
-    let selectedFiles = [];
-    let qrInstance = null;
-    let currentSessionId = null;
-    let eventSource = null;
-    let totalBatchSize = 0;
+    // State management
+    let stagedFiles = [];
 
-    const selectView = document.getElementById('selectView');
-    const qrView = document.getElementById('qrView');
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
-    const filesContainer = document.getElementById('filesContainer');
-    const batchSummary = document.getElementById('batchSummary');
-    const startBtn = document.getElementById('startBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const newTransferBtn = document.getElementById('newTransferBtn');
-    const hostIpText = document.getElementById('hostIpText');
-    const verifyCodeDisplay = document.getElementById('verifyCodeDisplay');
-    const transferStatusPill = document.getElementById('transferStatusPill');
-    const statusText = document.getElementById('statusText');
-    const statusSpinner = document.getElementById('statusSpinner');
-    const pairingElementsContainer = document.getElementById('pairingElementsContainer');
-    const activeTransferPanel = document.getElementById('activeTransferPanel');
-    const activeFileTitle = document.getElementById('activeFileTitle');
-    const activeTransferStatus = document.getElementById('activeTransferStatus');
-    const activeProgressBar = document.getElementById('activeProgressBar');
-    const activeBytesText = document.getElementById('activeBytesText');
-    const activeSpeedText = document.getElementById('activeSpeedText');
-    const completeSuccessBox = document.getElementById('completeSuccessBox');
-    const completeSummaryText = document.getElementById('completeSummaryText');
-    const qrMainHeading = document.getElementById('qrMainHeading');
-    const qrSubtitle = document.getElementById('qrSubtitle');
+    const fileList = document.getElementById('fileList');
+    const stagedSummary = document.getElementById('stagedSummary');
+    const generateQrBtn = document.getElementById('generateQrBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const qrContainer = document.getElementById('qrContainer');
+    const qrCodeTarget = document.getElementById('qrCodeTarget');
 
-    // Fetch initial host info
-    async function loadHostInfo() {
-      try {
-        const res = await fetch('/api/info');
-        const data = await res.json();
-        hostIpText.textContent = `Host: ${data.ip} • Ready`;
-      } catch (e) {
-        hostIpText.textContent = 'Offline / Localhost';
+    // Tab Switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+      if (tabId === 'senderView') {
+        document.getElementById('senderView').classList.add('active');
+        document.getElementById('tabBtnSender').classList.add('active');
+      } else {
+        document.getElementById('guideView').classList.add('active');
+        document.getElementById('tabBtnGuide').classList.add('active');
       }
     }
-    loadHostInfo();
 
-    // Drop zone interactions
-    dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
+    // Drag and Drop
+    ['dragenter', 'dragover'].forEach(name => {
+      dropZone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      });
     });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+
+    ['dragleave', 'drop'].forEach(name => {
+      dropZone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+      });
+    });
+
     dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        handleFiles(Array.from(e.dataTransfer.files));
+        addFiles(e.dataTransfer.files);
       }
     });
 
     fileInput.addEventListener('change', (e) => {
       if (e.target.files && e.target.files.length > 0) {
-        handleFiles(Array.from(e.target.files));
+        addFiles(e.target.files);
       }
     });
 
-    function handleFiles(files) {
-      const existingNames = new Set(selectedFiles.map(f => f.name + f.size));
-      for (const file of files) {
-        if (!existingNames.has(file.name + file.size)) {
-          selectedFiles.push(file);
-        }
+    function addFiles(files) {
+      for (let i = 0; i < files.length; i++) {
+        stagedFiles.push(files[i]);
       }
-      renderFiles();
+      renderFileList();
     }
 
     function removeFile(index) {
-      selectedFiles.splice(index, 1);
-      renderFiles();
+      stagedFiles.splice(index, 1);
+      renderFileList();
+    }
+
+    function clearFiles() {
+      stagedFiles = [];
+      renderFileList();
+      closeQrModal();
     }
 
     function formatBytes(bytes) {
-      if (!bytes || bytes <= 0) return '0 B';
+      if (bytes === 0) return '0 B';
       const k = 1024;
       const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
     }
 
-    function getExt(name) {
-      const parts = name.split('.');
-      return parts.length > 1 ? parts.pop().toUpperCase() : 'FILE';
-    }
-
-    function renderFiles() {
-      if (selectedFiles.length === 0) {
-        filesContainer.style.display = 'none';
-        batchSummary.textContent = 'No files selected';
-        startBtn.disabled = true;
-        return;
-      }
-
-      filesContainer.style.display = 'block';
-      filesContainer.innerHTML = '';
-
+    function renderFileList() {
+      fileList.innerHTML = '';
       let totalBytes = 0;
-      selectedFiles.forEach((file, index) => {
+
+      stagedFiles.forEach((file, idx) => {
         totalBytes += file.size;
-        const row = document.createElement('div');
-        row.className = 'file-row';
-        row.innerHTML = `
-          <div class="file-info">
-            <div class="file-badge">${getExt(file.name)}</div>
-            <div class="file-details">
-              <div class="file-name">${escapeHtml(file.name)}</div>
-              <div class="file-size">${formatBytes(file.size)}</div>
+        const item = document.createElement('div');
+        item.className = 'file-item';
+        item.innerHTML = `
+          <div class="file-item-left">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
+              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+              <polyline points="13 2 13 9 20 9"></polyline>
+            </svg>
+            <div>
+              <div class="file-item-name" title="${file.name}">${file.name}</div>
+              <div class="file-item-size">${formatBytes(file.size)}</div>
             </div>
           </div>
-          <button class="file-remove" onclick="removeFile(${index})" title="Remove file">
+          <div class="file-item-del" onclick="removeFile(${idx})">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
-          </button>
+          </div>
         `;
-        filesContainer.appendChild(row);
+        fileList.appendChild(item);
       });
 
-      totalBatchSize = totalBytes;
-      const countText = `${selectedFiles.length} ${selectedFiles.length === 1 ? 'file' : 'files'}`;
-      batchSummary.innerHTML = `${countText} selected • <span>${formatBytes(totalBytes)}</span>`;
-      startBtn.disabled = false;
+      const count = stagedFiles.length;
+      stagedSummary.textContent = `${count} file${count === 1 ? '' : 's'} staged (${formatBytes(totalBytes)})`;
+
+      generateQrBtn.disabled = count === 0;
+      clearBtn.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+
+    function detectCategory(name) {
+      const ext = name.includes('.') ? name.split('.').pop().toLowerCase() : '';
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'heic'].includes(ext)) return 'image';
+      if (['mp4', 'mkv', 'mov', 'avi', 'wmv', 'flv', 'webm', '3gp'].includes(ext)) return 'video';
+      if (['mp3', 'wav', 'aac', 'flac', 'm4a', 'ogg', 'opus'].includes(ext)) return 'audio';
+      if (['pdf', 'doc', 'docx', 'txt', 'rtf', 'xls', 'xlsx', 'ppt', 'pptx', 'csv'].includes(ext)) return 'document';
+      if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) return 'archive';
+      return 'other';
     }
 
     function escapeHtml(str) {
+      if (!str) return '';
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    // Start Transfer
-    startBtn.addEventListener('click', async () => {
-      if (selectedFiles.length === 0) return;
+    // PC Daemon Connection & Transfer Engine
+    let activeDaemonUrl = null;
+    let sseEventSource = null;
 
-      startBtn.disabled = true;
-      startBtn.innerHTML = '<div class="spinner"></div> Staging files...';
+    async function detectDaemon() {
+      const candidates = [];
+      const hostInput = document.getElementById('hostIpInput');
+      const inputIp = hostInput ? hostInput.value.trim() : '';
 
-      try {
-        const sid = 'sess_' + Date.now();
-        for (let i = 0; i < selectedFiles.length; i++) {
-          const file = selectedFiles[i];
-          startBtn.innerHTML = `<div class="spinner"></div> Staging (${i + 1}/${selectedFiles.length}): ${escapeHtml(file.name)}...`;
-          const upRes = await fetch(`/api/upload?sid=${encodeURIComponent(sid)}&name=${encodeURIComponent(file.name)}`, {
-            method: 'POST',
-            body: file
+      if (inputIp && !['localhost', '127.0.0.1'].includes(inputIp) && !inputIp.includes('vercel.app') && !inputIp.includes('http')) {
+        candidates.push(`http://${inputIp}:8080`);
+      }
+      candidates.push('http://localhost:8080');
+      candidates.push('http://127.0.0.1:8080');
+
+      for (const url of candidates) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2000);
+          const res = await fetch(`${url}/api/info`, {
+            mode: 'cors',
+            signal: controller.signal
           });
-          if (!upRes.ok) throw new Error('Failed to upload ' + file.name);
-        }
+          clearTimeout(timeoutId);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.ip) {
+              activeDaemonUrl = url;
+              if (hostInput && (!inputIp || inputIp === '172.16.237.178' || inputIp === '127.0.0.1' || inputIp === 'localhost')) {
+                hostInput.value = data.ip;
+              }
+              const dot = document.getElementById('ipDot');
+              if (dot) dot.style.background = '#10b981';
+              const status = document.getElementById('ipStatusText');
+              if (status) status.textContent = `(🟢 PC Host Connected: ${data.ip})`;
+              return { url, data };
+            }
+          }
+        } catch (_) {}
+      }
 
-        startBtn.innerHTML = '<div class="spinner"></div> Generating pairing QR...';
-        const startRes = await fetch(`/api/start-session?sid=${encodeURIComponent(sid)}`, {
-          method: 'POST'
-        });
-        if (!startRes.ok) throw new Error('Failed to start transfer session');
+      const dot = document.getElementById('ipDot');
+      if (dot) dot.style.background = '#f59e0b';
+      const status = document.getElementById('ipStatusText');
+      if (status) status.textContent = '(⚠️ Run run_pc_host.bat on PC to connect)';
+      return null;
+    }
 
-        const session = await startRes.json();
-        currentSessionId = session.sid;
-        totalBatchSize = session.total;
+    window.addEventListener('DOMContentLoaded', () => {
+      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const cloudBanner = document.getElementById('cloudHostBanner');
+      if (cloudBanner && isLocalHost) {
+        cloudBanner.style.display = 'none';
+      }
 
-        // Render QR Code
-        renderQrCode(session.qrRaw);
-
-        // Verification code
-        verifyCodeDisplay.textContent = session.code;
-
-        // Reset QR display elements
-        pairingElementsContainer.style.display = 'block';
-        activeTransferPanel.style.display = 'none';
-        completeSuccessBox.style.display = 'none';
-        qrMainHeading.textContent = 'Pair with Android Phone';
-        qrSubtitle.textContent = 'Scan this QR code with the QR Transfer app on your Android phone';
-        transferStatusPill.className = 'status-pill-large status-waiting';
-        statusSpinner.style.display = 'block';
-        statusText.textContent = 'Waiting for phone to scan...';
-
-        // Switch to QR View
-        selectView.classList.remove('active');
-        qrView.classList.add('active');
-
-        // Connect SSE for real-time status
-        connectEventStream();
-
-      } catch (err) {
-        alert('Failed to start transfer: ' + err.message);
-        startBtn.disabled = false;
-        startBtn.innerHTML = '<span>Generate QR Code</span>';
+      detectDaemon();
+      const hostInput = document.getElementById('hostIpInput');
+      if (hostInput) {
+        hostInput.addEventListener('change', () => detectDaemon());
       }
     });
 
-    function renderQrCode(rawText) {
-      const qrEl = document.getElementById('qrcode');
-      qrEl.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
-        qrInstance = new QRCode(qrEl, {
-          text: rawText,
+    async function generateQrModal() {
+      if (stagedFiles.length === 0) return;
+
+      const generateBtn = document.getElementById('generateQrBtn');
+      const originalBtnHtml = generateBtn.innerHTML;
+      generateBtn.disabled = true;
+
+      generateBtn.innerHTML = '<span class="btn-spinner"></span> Checking PC host...';
+      const daemon = await detectDaemon();
+      if (!daemon) {
+        alert('Cannot connect to the QRFlux PC Host!\n\n1. Make sure "run_pc_host.bat" is running on your computer.\n2. If using the website from a mobile phone or another computer, enter your PC\'s Wi-Fi IP address in the "Sender Wi-Fi IPv4" field.\n3. Verify both devices are connected to the same Wi-Fi / Hotspot.');
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = originalBtnHtml;
+        return;
+      }
+
+      const daemonUrl = daemon.url;
+      const sid = 'sess_' + Date.now();
+
+      try {
+        // Stage files to PC daemon
+        for (let i = 0; i < stagedFiles.length; i++) {
+          const file = stagedFiles[i];
+          generateBtn.innerHTML = `<span class="btn-spinner"></span> Staging (${i + 1}/${stagedFiles.length}): ${escapeHtml(file.name)}...`;
+          const upRes = await fetch(`${daemonUrl}/api/upload?sid=${encodeURIComponent(sid)}&name=${encodeURIComponent(file.name)}`, {
+            method: 'POST',
+            body: file,
+            mode: 'cors'
+          });
+          if (!upRes.ok) {
+            throw new Error(`Failed to stage "${file.name}" to PC Host.`);
+          }
+        }
+
+        // Start streaming FTP session on PC daemon
+        generateBtn.innerHTML = '<span class="btn-spinner"></span> Generating Transfer QR...';
+        const startRes = await fetch(`${daemonUrl}/api/start-session?sid=${encodeURIComponent(sid)}`, {
+          method: 'POST',
+          mode: 'cors'
+        });
+        if (!startRes.ok) {
+          throw new Error('PC host could not start the streaming session.');
+        }
+
+        const session = await startRes.json();
+
+        // Render official QR Code directly from the server's session.qrRaw
+        qrCodeTarget.innerHTML = '';
+        new QRCode(qrCodeTarget, {
+          text: session.qrRaw,
           width: 240,
           height: 240,
-          colorDark: "#000000",
+          colorDark: "#0B0F19",
           colorLight: "#FFFFFF",
           correctLevel: QRCode.CorrectLevel.M
         });
-      } else {
-        qrEl.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(rawText)}" alt="QR Code" width="240" height="240" />`;
+
+        const verifyDisplay = document.getElementById('qrVerifyCode');
+        if (verifyDisplay) verifyDisplay.textContent = session.code;
+
+        document.getElementById('pairingElementsContainer').style.display = 'block';
+        document.getElementById('activeTransferPanel').style.display = 'none';
+        document.getElementById('completeSuccessBox').style.display = 'none';
+        document.getElementById('qrMainHeading').textContent = 'Ready for Android Pairing';
+        document.getElementById('qrSubtitle').innerHTML = 'Scan this code inside the <strong>QRFlux Android App</strong> (Tap <em>Receive Files</em>).';
+
+        qrContainer.classList.add('active');
+        qrContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Connect SSE: Automatically hide QR code when the phone connects and starts transfer!
+        connectDaemonEvents(daemonUrl, session.total);
+
+      } catch (err) {
+        alert('Transfer initialization error: ' + err.message);
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = originalBtnHtml;
       }
     }
 
-    function onReceiverConnected() {
-      // STOP SHOWING THE QR CODE IMMEDIATELY!
-      pairingElementsContainer.style.display = 'none';
-      activeTransferPanel.style.display = 'block';
-      completeSuccessBox.style.display = 'none';
+    function connectDaemonEvents(daemonUrl, totalBatchBytes) {
+      if (sseEventSource) {
+        sseEventSource.close();
+      }
 
-      qrMainHeading.textContent = 'Transfer In Progress';
-      qrSubtitle.textContent = 'Sending files directly to your connected Android phone';
+      sseEventSource = new EventSource(`${daemonUrl}/api/events`);
 
-      transferStatusPill.className = 'status-pill-large status-transferring';
-      statusText.textContent = 'Phone connected • Streaming files...';
-    }
-
-    function connectEventStream() {
-      if (eventSource) eventSource.close();
-
-      eventSource = new EventSource('/api/events');
-      eventSource.onmessage = (event) => {
+      sseEventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          
-          if (data.type === 'connected') {
-            onReceiverConnected();
-          } else if (data.type === 'client_count' && data.count > 0) {
-            onReceiverConnected();
+
+          if (data.type === 'connected' || (data.type === 'client_count' && data.count > 0)) {
+            // STOP SHOWING THE QR CODE IMMEDIATELY!
+            document.getElementById('pairingElementsContainer').style.display = 'none';
+            document.getElementById('activeTransferPanel').style.display = 'block';
+            document.getElementById('completeSuccessBox').style.display = 'none';
+            document.getElementById('qrMainHeading').textContent = 'Transfer In Progress';
+            document.getElementById('qrSubtitle').textContent = 'Sending files directly to your connected Android phone';
           } else if (data.type === 'progress') {
-            onReceiverConnected();
-            activeFileTitle.textContent = data.file;
+            document.getElementById('pairingElementsContainer').style.display = 'none';
+            document.getElementById('activeTransferPanel').style.display = 'block';
+
+            document.getElementById('activeFileTitle').textContent = data.file;
             const pct = data.total > 0 ? Math.min(100, Math.round((data.transferred / data.total) * 100)) : 0;
-            activeProgressBar.style.width = pct + '%';
-            activeBytesText.textContent = `${formatBytes(data.transferred)} / ${formatBytes(data.total)} (${pct}%)`;
-            activeSpeedText.textContent = `${formatBytes(data.speed)}/s`;
-            activeTransferStatus.textContent = `Streaming ${data.file} to phone...`;
+            document.getElementById('activeProgressBar').style.width = pct + '%';
+            document.getElementById('activeBytesText').textContent = `${formatBytes(data.transferred)} / ${formatBytes(data.total)} (${pct}%)`;
+            document.getElementById('activeSpeedText').textContent = `${formatBytes(data.speed)}/s`;
+            document.getElementById('activeTransferStatus').textContent = `Streaming ${data.file} to phone...`;
           } else if (data.type === 'complete') {
-            onReceiverConnected();
-            activeProgressBar.style.width = '100%';
-            transferStatusPill.className = 'status-pill-large status-success';
-            statusSpinner.style.display = 'none';
-            statusText.textContent = '✓ Transfer completed successfully!';
-
-            activeTransferPanel.style.display = 'none';
-            completeSuccessBox.style.display = 'block';
-            completeSummaryText.textContent = `All ${selectedFiles.length} files (${formatBytes(totalBatchSize)}) were safely sent to your Android phone.`;
-
-            cancelBtn.style.display = 'none';
-            newTransferBtn.style.display = 'inline-flex';
+            document.getElementById('pairingElementsContainer').style.display = 'none';
+            document.getElementById('activeTransferPanel').style.display = 'none';
+            document.getElementById('completeSuccessBox').style.display = 'block';
+            document.getElementById('qrMainHeading').textContent = 'Transfer Complete!';
+            document.getElementById('qrSubtitle').textContent = 'Files received successfully.';
+            document.getElementById('completeSummaryText').textContent = `All files (${formatBytes(totalBatchBytes || 0)}) were safely transferred to your Android phone.`;
           }
-        } catch (e) {}
+        } catch (_) {}
       };
     }
 
-    cancelBtn.addEventListener('click', async () => {
-      if (eventSource) eventSource.close();
-      await fetch('/api/cancel', { method: 'POST' });
-      resetToPicker();
-    });
-
-    newTransferBtn.addEventListener('click', () => {
-      resetToPicker();
-    });
-
-    function resetToPicker() {
-      selectedFiles = [];
-      renderFiles();
-      startBtn.disabled = false;
-      startBtn.innerHTML = '<span>Generate QR Code</span>';
-      cancelBtn.style.display = 'inline-flex';
-      newTransferBtn.style.display = 'none';
-      statusSpinner.style.display = 'block';
-      transferStatusPill.className = 'status-pill-large status-waiting';
-      statusText.textContent = 'Waiting for phone to scan...';
-      pairingElementsContainer.style.display = 'block';
-      activeTransferPanel.style.display = 'none';
-      completeSuccessBox.style.display = 'none';
-      qrView.classList.remove('active');
-      selectView.classList.add('active');
+    function closeQrModal() {
+      qrContainer.classList.remove('active');
+      if (sseEventSource) {
+        sseEventSource.close();
+        sseEventSource = null;
+      }
     }
   </script>
 </body>
+
 </html>

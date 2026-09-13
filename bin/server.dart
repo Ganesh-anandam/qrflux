@@ -44,10 +44,11 @@ class TransferHostServer {
   }
 
   Future<void> _handleHttpRequest(HttpRequest req) async {
-    // Set CORS headers
+    // Set CORS headers & Private Network Access for Vercel/Web requests
     req.response.headers.add('Access-Control-Allow-Origin', '*');
     req.response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    req.response.headers.add('Access-Control-Allow-Headers', 'Content-Type');
+    req.response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Request-Private-Network, *');
+    req.response.headers.add('Access-Control-Allow-Private-Network', 'true');
 
     if (req.method == 'OPTIONS') {
       req.response.statusCode = HttpStatus.ok;
@@ -58,11 +59,13 @@ class TransferHostServer {
     final path = req.uri.path;
 
     if (path == '/' || path == '/index.html') {
-      await _serveWebAsset(req, 'bin/web/index.html', 'text/html');
+      await _serveWebAsset(req, 'public/index.html', 'text/html');
     } else if (path == '/logo.png') {
-      await _serveWebAsset(req, 'bin/web/logo.png', 'image/png');
+      await _serveWebAsset(req, 'public/logo.png', 'image/png');
     } else if (path == '/favicon.png') {
-      await _serveWebAsset(req, 'web/favicon.png', 'image/png');
+      await _serveWebAsset(req, 'public/favicon.png', 'image/png');
+    } else if (path == '/qrflux-app.apk') {
+      await _serveWebAsset(req, 'public/qrflux-app.apk', 'application/vnd.android.package-archive');
     } else if (path == '/api/info') {
       await _serveJson(req, {
         'ip': _localIp,
