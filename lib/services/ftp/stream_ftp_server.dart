@@ -363,9 +363,7 @@ class _ClientSession {
       var lastReportBytes = 0;
 
       // Stream file with backpressure and progress reporting
-      final readStream = physicalFile.openRead();
-      await for (final chunk in readStream) {
-        dSocket.add(chunk);
+      final readStream = physicalFile.openRead().map((chunk) {
         transferred += chunk.length;
 
         final now = stopwatch.elapsedMilliseconds;
@@ -384,7 +382,10 @@ class _ClientSession {
           lastReportTime = now;
           lastReportBytes = transferred;
         }
-      }
+        return chunk;
+      });
+
+      await dSocket.addStream(readStream);
 
       // CRITICAL: Await full flush so every last byte is written to the TCP stack!
       await dSocket.flush();
