@@ -132,6 +132,16 @@ class FtpClientService {
           },
         );
 
+        // Verification of downloaded file integrity
+        if (await targetFile.exists()) {
+          final actualSize = await targetFile.length();
+          if (fileItem.size > 0 && actualSize < fileItem.size) {
+            throw SocketException(
+              'File "${fileItem.name}" transfer was incomplete: received $actualSize of ${fileItem.size} bytes.',
+            );
+          }
+        }
+
         _lastSavedPaths.add(targetFile.path);
 
         totalBytesTransferred += fileItem.size > 0

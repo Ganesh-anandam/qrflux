@@ -126,9 +126,6 @@ class StreamFtpServer {
       }
     }
 
-    if (_filesByName.values.length == 1) {
-      return _filesByName.values.first;
-    }
     return null;
   }
 }
@@ -394,7 +391,8 @@ class _ClientSession {
 
       // Gracefully close the write side so client receives clean TCP FIN
       await dSocket.close();
-      dSocket.destroy();
+      // Wait for receiver to acknowledge and consume all data packets
+      await Future.delayed(const Duration(milliseconds: 120));
       dSocket = null;
 
       // Final progress notification

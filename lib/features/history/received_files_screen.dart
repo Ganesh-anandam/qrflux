@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
@@ -39,8 +40,69 @@ class _ReceivedFilesScreenState extends State<ReceivedFilesScreen> {
     }
   }
 
-  Future<void> _openFile(String path) async {
-    final success = await _storageService.openFile(path);
+  Future<void> _openFile(FileItem file) async {
+    if (file.category == FileCategory.image && File(file.path).existsSync()) {
+      // In-app interactive full screen image viewer
+      await showDialog(
+        context: context,
+        builder: (ctx) => Dialog(
+          backgroundColor: Colors.black.withValues(alpha: 0.95),
+          insetPadding: EdgeInsets.zero,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Center(
+                child: InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: Image.file(
+                    File(file.path),
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Center(
+                      child: Text(
+                        'Unable to render image preview',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 40,
+                left: 16,
+                right: 16,
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, color: Colors.white, size: 28),
+                      onPressed: () => Navigator.of(ctx).pop(),
+                    ),
+                    Expanded(
+                      child: Text(
+                        file.name,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.open_in_new_rounded, color: Colors.white, size: 22),
+                      tooltip: 'Open with Gallery',
+                      onPressed: () {
+                        _storageService.openFile(file.path);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      return;
+    }
+
+    final success = await _storageService.openFile(file.path);
     if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -227,19 +289,36 @@ class _ReceivedFilesScreenState extends State<ReceivedFilesScreen> {
                           separatorBuilder: (_, index) => const SizedBox(height: 10),
                           itemBuilder: (context, index) {
                             final file = filtered[index];
+                            final isImage = file.category == FileCategory.image && File(file.path).existsSync();
                             return GradientCard(
-                              onTap: () => _openFile(file.path),
+                              onTap: () => _openFile(file),
                               padding: const EdgeInsets.all(14),
                               child: Row(
                                 children: [
-                                  Container(
-                                    width: 44,
-                                    height: 44,
-                                    decoration: BoxDecoration(
-                                      color: file.category.color.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Icon(file.category.icon, color: file.category.color, size: 24),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: isImage
+                                        ? Image.file(
+                                            File(file.path),
+                                            width: 44,
+                                            height: 44,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) => Container(
+                                              width: 44,
+                                              height: 44,
+                                              color: file.category.color.withValues(alpha: 0.15),
+                                              child: Icon(file.category.icon, color: file.category.color, size: 24),
+                                            ),
+                                          )
+                                        : Container(
+                                            width: 44,
+                                            height: 44,
+                                            decoration: BoxDecoration(
+                                              color: file.category.color.withValues(alpha: 0.15),
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            child: Icon(file.category.icon, color: file.category.color, size: 24),
+                                          ),
                                   ),
                                   const SizedBox(width: 14),
                                   Expanded(
@@ -265,9 +344,9 @@ class _ReceivedFilesScreenState extends State<ReceivedFilesScreen> {
                                             const SizedBox(width: 8),
                                             const Text('•', style: TextStyle(fontSize: 12, color: Colors.grey)),
                                             const SizedBox(width: 8),
-                                            const Text(
-                                              'Tap to open',
-                                              style: TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600),
+                                            Text(
+                                              isImage ? 'Tap to preview' : 'Tap to open',
+                                              style: const TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600),
                                             ),
                                           ],
                                         ),
@@ -277,7 +356,7 @@ class _ReceivedFilesScreenState extends State<ReceivedFilesScreen> {
                                   PopupMenuButton<String>(
                                     icon: const Icon(Icons.more_vert_rounded, size: 20),
                                     onSelected: (val) {
-                                      if (val == 'open') _openFile(file.path);
+                                      if (val == 'open') _openFile(file);
                                       if (val == 'copy') _copyPath(file.path);
                                       if (val == 'delete') _deleteFile(file);
                                     },

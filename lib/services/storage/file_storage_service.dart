@@ -148,13 +148,66 @@ class FileStorageService {
     }
   }
 
-  /// Open file directly from within the app using open_filex
-  Future<bool> openFile(String filePath) async {
+  /// Open file directly from within the app using open_filex with explicit MIME type resolution
+  Future<bool> openFile(String filePath, {String? explicitMimeType}) async {
     if (kIsWeb) return false;
     try {
       final file = File(filePath);
       if (!await file.exists()) return false;
-      final result = await OpenFilex.open(filePath);
+
+      final ext = p.extension(filePath).toLowerCase().replaceFirst('.', '');
+      String? mimeType = explicitMimeType;
+
+      if (mimeType == null || mimeType.isEmpty) {
+        switch (ext) {
+          case 'jpg':
+          case 'jpeg':
+            mimeType = 'image/jpeg';
+            break;
+          case 'png':
+            mimeType = 'image/png';
+            break;
+          case 'webp':
+            mimeType = 'image/webp';
+            break;
+          case 'gif':
+            mimeType = 'image/gif';
+            break;
+          case 'bmp':
+            mimeType = 'image/bmp';
+            break;
+          case 'svg':
+            mimeType = 'image/svg+xml';
+            break;
+          case 'heic':
+          case 'heif':
+            mimeType = 'image/heif';
+            break;
+          case 'mp4':
+            mimeType = 'video/mp4';
+            break;
+          case 'mkv':
+            mimeType = 'video/x-matroska';
+            break;
+          case 'mp3':
+            mimeType = 'audio/mpeg';
+            break;
+          case 'pdf':
+            mimeType = 'application/pdf';
+            break;
+          case 'apk':
+            mimeType = 'application/vnd.android.package-archive';
+            break;
+          case 'txt':
+            mimeType = 'text/plain';
+            break;
+          case 'zip':
+            mimeType = 'application/zip';
+            break;
+        }
+      }
+
+      final result = await OpenFilex.open(filePath, type: mimeType);
       return result.type == ResultType.done;
     } catch (_) {
       return false;
