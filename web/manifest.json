@@ -1,11 +1,11 @@
 {
-    "name": "smart_file_transfer",
-    "short_name": "smart_file_transfer",
+    "name": "QRFlux — Transfer Freely",
+    "short_name": "QRFlux",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0B0F19",
+    "theme_color": "#00F0FF",
+    "description": "Ultra-fast direct offline Wi-Fi file sharing between PC and Android.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,23 +1,33 @@
-# QR Transfer ⚡
+<p align="center">
+  <img src="logo.png" width="120" height="120" alt="QRFlux Logo" style="border-radius: 24px;" />
+</p>
 
-> **High-speed, private, offline file transfer between nearby devices using embedded FTP and QR pairing.**
+<h1 align="center">QRFlux ⚡</h1>
 
-![Flutter](https://img.shields.io/badge/Flutter-3.38.8-02569B?logo=flutter)
-![Dart](https://img.shields.io/badge/Dart-3.10.7-0175C2?logo=dart)
-![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Desktop-green)
-![License](https://img.shields.io/badge/License-MIT-blue)
+<p align="center">
+  <strong>Transfer Freely • High-speed, private, offline file transfer between PC and Android using embedded FTP & QR pairing.</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-3.38.8-02569B?logo=flutter" alt="Flutter" />
+  <img src="https://img.shields.io/badge/Dart-3.10.7-0175C2?logo=dart" alt="Dart" />
+  <img src="https://img.shields.io/badge/Platform-Android%20%7C%20Web%20%7C%20Desktop-green" alt="Platform" />
+  <img src="https://img.shields.io/badge/Vercel-Ready-black?logo=vercel" alt="Vercel" />
+  <img src="https://img.shields.io/badge/License-MIT-blue" alt="License" />
+</p>
 
 ---
 
 ## 📖 Overview
 
-**QR Transfer** is a consumer-grade, offline-first mobile application built with Flutter. It enables direct, high-throughput file transfers between nearby devices over a local Wi-Fi or Personal Hotspot connection without routing data through the internet, cloud servers, or third parties.
+**QRFlux** is a consumer-grade, offline-first file transfer ecosystem built with Flutter. It enables direct, high-throughput file transfers between nearby devices (PC, Mac, Linux, Android) over local Wi-Fi or Personal Hotspots without routing any data through third-party cloud servers or the internet.
 
 ### Core Philosophy
-- **100% Offline**: Operates completely without internet, cellular data, or cloud servers.
+- **100% Offline**: Operates completely without cellular data or cloud servers.
 - **Zero Accounts**: No registration, login, or tracking.
-- **Private & Sandboxed**: Only the files selected for the current session are exposed to the local network; the rest of the file system remains inaccessible.
-- **Consumer Simplicity**: Networking complexity (IP addresses, ports, FTP commands) is hidden behind a simple 4-step UX: **Select → Scan → Accept → Transfer**.
+- **Vercel Deployable**: The sleek web portal, documentation, Web Sender UI, and APK distribution can be hosted on Vercel with zero configuration.
+- **Sandboxed & Private**: Only the files selected for the active session are exposed to the local network; the rest of the filesystem remains inaccessible.
+- **Consumer Simplicity**: Networking complexity (IP addresses, ports, FTP commands) is hidden behind a simple UX: **Select → Scan → Stream**.
 
 ---
 
@@ -152,3 +162,24 @@ Run all tests:
 ```bash
 flutter test
 ```
+
+---
+
+## 🌐 Deploy to Vercel
+
+QRFlux includes a complete production-grade Web Portal, Web Sender, Pairing Guide, and direct APK download distribution configured for instant deployment to [Vercel](https://vercel.com):
+
+### 1-Click Import:
+1. Push your changes to your GitHub repository (`https://github.com/Ganesh-anandam/qrflux`).
+2. Log into [vercel.com](https://vercel.com) and click **"Add New Project"**.
+3. Select and import **`qrflux`**.
+4. Vercel automatically detects the static output configured in [vercel.json](file:///d:/Google/smart_file_transfer/vercel.json) (pointing to `public/`).
+5. Click **"Deploy"**!
+
+### What Vercel Hosts:
+- 🚀 **QRFlux Web Portal & Landing Page**: Modern glassmorphic presentation with feature showcases.
+- 📲 **Direct APK Download**: One-click download of `qrflux-app.apk` for any Android phone.
+- 💻 **Web File Sender & Pairing Guide**: Web interface for preparing transfers and scanning QR codes.
+
+*(Note: Raw TCP streaming over port 2121 runs locally on the phone/PC daemon for 100% offline security, independent of cloud servers).*
+

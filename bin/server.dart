@@ -59,6 +59,10 @@ class TransferHostServer {
 
     if (path == '/' || path == '/index.html') {
       await _serveWebAsset(req, 'bin/web/index.html', 'text/html');
+    } else if (path == '/logo.png') {
+      await _serveWebAsset(req, 'bin/web/logo.png', 'image/png');
+    } else if (path == '/favicon.png') {
+      await _serveWebAsset(req, 'web/favicon.png', 'image/png');
     } else if (path == '/api/info') {
       await _serveJson(req, {
         'ip': _localIp,

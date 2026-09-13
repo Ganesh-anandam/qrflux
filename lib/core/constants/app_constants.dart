@@ -1,6 +1,6 @@
 class AppConstants {
-  static const String appName = 'QR Transfer';
-  static const String appTagline = 'Fast • Private • Offline';
+  static const String appName = 'QRFlux';
+  static const String appTagline = 'Transfer Freely • Offline • Private • Fast';
   static const String appVersion = '1.0.0';
 
   // FTP Configuration
