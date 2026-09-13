@@ -59,7 +59,7 @@ class TransferHostServer {
     final path = req.uri.path;
 
     if (path == '/' || path == '/index.html') {
-      await _serveWebAsset(req, 'public/index.html', 'text/html');
+      await _serveWebAsset(req, 'bin/web/index.html', 'text/html');
     } else if (path == '/logo.png') {
       await _serveWebAsset(req, 'public/logo.png', 'image/png');
     } else if (path == '/favicon.png') {

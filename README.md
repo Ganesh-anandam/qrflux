@@ -20,14 +20,17 @@
 
 ## 📖 Overview
 
-**QRFlux** is a consumer-grade, offline-first file transfer ecosystem built with Flutter. It enables direct, high-throughput file transfers between nearby devices (PC, Mac, Linux, Android) over local Wi-Fi or Personal Hotspots without routing any data through third-party cloud servers or the internet.
+**QRFlux** is a consumer-grade, offline-first file transfer app built with Flutter. It is designed primarily as a high-speed mobile app enabling direct, ultra-fast transfers between Android devices over local Wi-Fi or Personal Hotspots without routing any data through third-party cloud servers or the internet.
+
+For users who also want to beam files from their **PC or Laptop to their Android Phone**, QRFlux includes a lightweight local desktop companion server that runs right from this repository!
 
 ### Core Philosophy
-- **100% Offline**: Operates completely without cellular data or cloud servers.
+- **Mobile First**: Optimized for rapid, intuitive Android-to-Android file sharing.
+- **100% Offline**: Operates completely without cellular data or external cloud servers.
 - **Zero Accounts**: No registration, login, or tracking.
-- **Vercel Deployable**: The sleek web portal, documentation, Web Sender UI, and APK distribution can be hosted on Vercel with zero configuration.
-- **Sandboxed & Private**: Only the files selected for the active session are exposed to the local network; the rest of the filesystem remains inaccessible.
+- **Sandboxed & Private**: Only files selected for the active session are exposed to the local network.
 - **Consumer Simplicity**: Networking complexity (IP addresses, ports, FTP commands) is hidden behind a simple UX: **Select → Scan → Stream**.
+- **Desktop Companion**: Easily send files from any PC/Mac to Android by running the local host daemon.
 
 ---
 
@@ -139,6 +142,43 @@ The resulting APK will be generated at `build/app/outputs/flutter-apk/app-releas
 
 ---
 
+## 💻 Sending Files from Laptop / PC to Phone
+
+If you want to beam large files, 4K videos, or archives from your PC/laptop to your Android phone, you can run the QRFlux local host server:
+
+### 1. Clone & Navigate to the Repository
+```bash
+git clone https://github.com/Ganesh-anandam/qrflux.git
+cd qrflux
+```
+
+### 2. Prerequisites
+Make sure you have **Dart SDK** (included with Flutter) installed:
+```bash
+dart --version
+```
+
+### 3. Run the PC Host Server
+- **Windows**: Double-click `run_pc_host.bat` (or run `dart run bin/server.dart` in terminal)
+- **macOS / Linux**:
+  ```bash
+  dart run bin/server.dart
+  ```
+
+*(If Windows Firewall prompts you for access, click "Allow access", or run `fix_firewall.bat` as Administrator).*
+
+### 4. Stage Files in the Local Web Interface
+The server automatically launches `http://localhost:8080` in your default browser.
+1. Drag and drop any files or folders from your computer into the drop zone.
+2. Click **Generate Transfer QR**.
+
+### 5. Scan & Receive on Your Phone
+1. Ensure your Android phone is connected to the same Wi-Fi network (or connect your PC to your phone's Wi-Fi hotspot).
+2. Open the **QRFlux Android App**, tap **Receive Files**, and scan the QR code displayed on your PC screen.
+3. Your files stream directly into your phone's `Downloads` folder at **50+ MB/s**!
+
+---
+
 ## 📶 Network Requirements & Tips
 
 1. **Same Wi-Fi Network**: Both devices can connect to the same local Wi-Fi router (no internet required).
@@ -177,9 +217,9 @@ QRFlux includes a complete production-grade Web Portal, Web Sender, Pairing Guid
 5. Click **"Deploy"**!
 
 ### What Vercel Hosts:
-- 🚀 **QRFlux Web Portal & Landing Page**: Modern glassmorphic presentation with feature showcases.
+- 🚀 **QRFlux Web Portal & Landing Page**: Modern glassmorphic presentation with Android app showcase.
 - 📲 **Direct APK Download**: One-click download of `qrflux-app.apk` for any Android phone.
-- 💻 **Web File Sender & Pairing Guide**: Web interface for preparing transfers and scanning QR codes.
+- 💻 **Desktop Companion Guide**: Clear instructions for running the local PC host to beam files from PC to phone.
 
 *(Note: Raw TCP streaming over port 2121 runs locally on the phone/PC daemon for 100% offline security, independent of cloud servers).*
 
